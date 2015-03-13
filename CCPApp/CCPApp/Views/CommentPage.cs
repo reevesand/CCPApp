@@ -42,7 +42,7 @@ namespace CCPApp.Views
 			//Choose question
 			Label chooseQuestionLabel = new Label{Text="Choose question"};
 			questionPicker = new GenericPicker<Question>();
-			foreach (Question question in checklist.GetAllQuestions())
+			foreach (Question question in checklist.GetAllQuestions().Where(q => !q.HasSubItems))
 			{
 				questionPicker.AddItem(question);
 			}
