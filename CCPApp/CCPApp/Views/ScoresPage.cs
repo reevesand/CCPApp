@@ -150,42 +150,34 @@ namespace CCPApp.Views
 
 		private static float ScoreSection(Section section, Inspection inspection)
 		{
-			//int TotalQuestionsInSection = section.Questions.Count(q => !q.HasSubItems);
 			List<ScoredQuestion> scores = inspection.scores;
 			List<ScoredQuestion> RelevantScores = scores.Where(score => score.question.SectionId == section.Id && score.question.IsScorable()).ToList();
-			float availablePoints = RelevantScores.Count(score => score.answer == Answer.Yes || score.answer == Answer.No);
-			if (availablePoints == 0)
-			{
-				return 0;
-			}
-			float scoredPoints = RelevantScores.Count(score => score.answer == Answer.Yes);
-			//int TotalQuestionsInSection = scores.Where(score => score.question.section == section && !score.question.HasSubItems);
-			return scoredPoints / availablePoints;
+
+			return ScoreQuestions(RelevantScores);
 		}
 		private static float ScorePart(SectionPart part, Inspection inspection)
 		{
-			List<ScoredQuestion> scores = App.database.LoadScoresForInspection(inspection);
+			List<ScoredQuestion> scores = inspection.scores;
 			List<ScoredQuestion> RelevantScores = scores.Where(score => score.question.SectionPartId == part.Id && score.question.IsScorable()).ToList();
-			float availablePoints = RelevantScores.Count(score => score.answer == Answer.Yes || score.answer == Answer.No);
-			if (availablePoints == 0)
-			{
-				return 0;
-			}
-			float scoredPoints = RelevantScores.Count(score => score.answer == Answer.Yes);
-			//int TotalQuestionsInSection = scores.Where(score => score.question.section == section && !score.question.HasSubItems);
-			return scoredPoints / availablePoints;
+
+			return ScoreQuestions(RelevantScores);
 		}
 		private static float ScoreInspection(Inspection inspection)
 		{
-			List<ScoredQuestion> scores = App.database.LoadScoresForInspection(inspection);
+			List<ScoredQuestion> scores = inspection.scores;
 			List<ScoredQuestion> RelevantScores = scores.Where(score => score.question.IsScorable()).ToList();
 
-			float availablePoints = RelevantScores.Count(score => score.answer == Answer.Yes || score.answer == Answer.No);
+			return ScoreQuestions(RelevantScores);
+		}
+
+		private static float ScoreQuestions(IEnumerable<ScoredQuestion> scores)
+		{
+			float availablePoints = scores.Count(score => score.answer == Answer.Yes || score.answer == Answer.No);
 			if (availablePoints == 0)
 			{
 				return 0;
 			}
-			float scoredPoints = RelevantScores.Count(score => score.answer == Answer.Yes);
+			float scoredPoints = scores.Count(score => (score.answer == Answer.Yes && score.question.InvertScore == false) || (score.answer == Answer.No && score.question.InvertScore == true));
 			return scoredPoints / availablePoints;
 		}
 	}
