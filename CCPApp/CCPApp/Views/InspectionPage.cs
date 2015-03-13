@@ -191,6 +191,7 @@ namespace CCPApp.Views
 			this.part = part;
 			this.inspection = inspection;
 			Title = "Part " + part.Label;
+			this.Icon = "TabIconGreenNoBG.png";
 			List<QuestionPage> pages = InspectionHelper.GenerateQuestionPages(part.Questions, inspection);
 			foreach (ContentPage page in pages)
 			{
