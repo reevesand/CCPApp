@@ -34,8 +34,8 @@ namespace CCPApp.Views
 				Text = "Choose section and part to see scores"
 			};
 			//add all the other stuff.
-			GenericPicker<Section> sectionPicker = new GenericPicker<Section>();
-			foreach (Section section in inspection.Checklist.Sections)
+			GenericPicker<SectionModel> sectionPicker = new GenericPicker<SectionModel>();
+			foreach (SectionModel section in inspection.Checklist.Sections)
 			{
 				sectionPicker.AddItem(section);
 			}
@@ -90,8 +90,8 @@ namespace CCPApp.Views
 		}
 		private void ChangeSection(object sender, EventArgs e)
 		{
-			GenericPicker<Section> picker = (GenericPicker<Section>)sender;
-			Section section = picker.SelectedItem;
+			GenericPicker<SectionModel> picker = (GenericPicker<SectionModel>)sender;
+			SectionModel section = picker.SelectedItem;
 			float sectionScore = ScoreSection(section, inspection);
 			sectionScoreLabel.Text = "Section score: " + (sectionScore * 100).ToString("0.00") + "%";
 			setScoresColor(sectionScore, sectionScoreLabel);
@@ -148,7 +148,7 @@ namespace CCPApp.Views
 			await App.Navigation.PopAsync();
 		}
 
-		private static float ScoreSection(Section section, Inspection inspection)
+		private static float ScoreSection(SectionModel section, Inspection inspection)
 		{
 			List<ScoredQuestion> scores = inspection.scores;
 			List<ScoredQuestion> RelevantScores = scores.Where(score => score.question.SectionId == section.Id && score.question.IsScorable()).ToList();

@@ -12,10 +12,10 @@ namespace CCPApp.Models
 	{
 		[PrimaryKey,AutoIncrement]
 		public int? Id { get; set; }
-		[ForeignKey(typeof(Section))]
+		[ForeignKey(typeof(SectionModel))]
 		public int? SectionId { get; set; }
 		[ManyToOne(CascadeOperations= CascadeOperation.All)]
-		public Section section { get; set; }
+		public SectionModel section { get; set; }
 		[ForeignKey(typeof(SectionPart))]
 		public int? SectionPartId { get; set; }
 		[ManyToOne(CascadeOperations = CascadeOperation.All)]
@@ -33,7 +33,8 @@ namespace CCPApp.Models
 		public string Text { get; set; }
 		public string PrintedText { get; set; }
 		public string OldText { get; set; }
-		public List<Reference> References = new List<Reference>();
+		[OneToMany(CascadeOperations = CascadeOperation.All)]
+		public List<Reference> References { get; set; }
 
 		public override string ToString()
 		{
@@ -46,7 +47,7 @@ namespace CCPApp.Models
 
 		public Question()
 		{
-
+			References = new List<Reference>();
 		}
 	}
 	/// <summary>
@@ -54,10 +55,18 @@ namespace CCPApp.Models
 	/// </summary>
 	public class Reference
 	{
-		public string Document = string.Empty;
-		public string DocumentName = string.Empty;
-		public string Bookmark = string.Empty;
-		public string Description = string.Empty;
+		[PrimaryKey, AutoIncrement]
+		public int? Id { get; set; }
+
+		[ForeignKey(typeof(Question))]
+		public int? QuestionId { get; set; }
+		[ManyToOne(CascadeOperations = CascadeOperation.All)]
+		public Question question { get; set; }
+
+		public string Document { get; set; }
+		public string DocumentName { get; set; }
+		public string Bookmark { get; set; }
+		public string Description { get; set; }
 		public Reference() { }
 		public Reference(Reference r)
 		{

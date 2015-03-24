@@ -27,10 +27,14 @@ namespace CCPApp.Models
 		[OneToMany(CascadeOperations = CascadeOperation.All)]
 		public List<Comment> comments { get; set; }
 
+		[ManyToMany(typeof(InspectorInspections),CascadeOperations=CascadeOperation.All)]
+		public List<Inspector> inspectors { get; set; }
+
 		public Inspection()
 		{
 			scores = new List<ScoredQuestion>();
 			comments = new List<Comment>();
+			inspectors = new List<Inspector>();
 		}
-	}
+	}	
 }

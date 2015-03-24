@@ -14,7 +14,7 @@ namespace CCPApp.Views
 		Inspection inspection;
 		ScoredQuestion score;
 		Label existingAnswerLabel = new Label();
-		public QuestionPage(Question question, Inspection inspection, string textOverride = null)
+		public QuestionPage(Question question, Inspection inspection, string textOverride = null, List<Reference> extraReferences = null)
 		{
 			this.question = question;
 			this.inspection = inspection;
@@ -24,6 +24,22 @@ namespace CCPApp.Views
 				Spacing = 0,
 				VerticalOptions = LayoutOptions.Center,
 			};
+
+			Label SectionLabel = new Label
+			{
+				Text = "Section "+question.section.Label+": "+question.section.Title,
+				HorizontalOptions = LayoutOptions.Center,
+			};
+			layout.Children.Add(SectionLabel);
+			if (question.SectionPartId != null)
+			{
+				Label PartLabel = new Label
+				{
+					Text = "Part "+question.part.Label,
+					HorizontalOptions = LayoutOptions.Center,
+				};
+				layout.Children.Add(PartLabel);
+			}
 
 			//Question number
 			Label questionNumberlabel = new Label
@@ -62,12 +78,19 @@ namespace CCPApp.Views
 			commentButton.Clicked += openCommentPage;
 			layout.Children.Add(commentButton);
 
-			//References button
-			//TODO change to be better and stuff
-			Button referenceButton = new Button();
-			referenceButton.Text = "Reference Page";
-			referenceButton.Clicked += openReferencePage;
-			layout.Children.Add(referenceButton);
+			//References buttons
+			List<Reference> references = question.References;	
+			if (extraReferences != null)
+			{		//Creates a copy of the list so we aren't adding to the original.
+				references = references.ToList();
+				references.AddRange(extraReferences);	
+			}
+			foreach (Reference reference in references)
+			{
+				ReferenceButton referenceButton = new ReferenceButton(reference);
+				referenceButton.folderName = inspection.ChecklistId;
+				layout.Children.Add(referenceButton);
+			}
 
 			//Answer buttons
 			List<AnswerButton> answerButtons = new List<AnswerButton>();
@@ -129,7 +152,14 @@ namespace CCPApp.Views
 		{
 			Device.BeginInvokeOnMainThread(async () =>
 			{
-				ReferencePage page = new ReferencePage();
+				string referenceName = inspection.ChecklistId + "/" + question.References.First().DocumentName;
+				string bookmark = question.References.First().Bookmark;
+				int pageNumber = 1;
+				if (bookmark != string.Empty)
+				{
+					pageNumber = int.Parse(bookmark);
+				}
+				ReferencePage page = new ReferencePage(referenceName, pageNumber);
 				await App.Navigation.PushAsync(page);
 			});
 		}
@@ -140,6 +170,33 @@ namespace CCPApp.Views
 		public AnswerButton(Answer answer)
 		{
 			this.answer = answer;
+		}
+	}
+	internal class ReferenceButton : Button
+	{
+		public Reference reference { get; set; }
+		public string folderName { get; set; }
+		public ReferenceButton(Reference reference)
+		{
+			this.reference = reference;
+			this.Text = reference.Description;
+			this.Clicked += openReferencePage;
+		}
+
+		void openReferencePage(object sender, EventArgs e)
+		{
+			Device.BeginInvokeOnMainThread(async () =>
+			{
+				string referenceName = folderName + "/" + reference.DocumentName;
+				string bookmark = reference.Bookmark;
+				int pageNumber = 1;
+				if (bookmark != string.Empty)
+				{
+					pageNumber = int.Parse(bookmark);
+				}
+				ReferencePage page = new ReferencePage(referenceName, pageNumber);
+				await App.Navigation.PushAsync(page);
+			});
 		}
 	}
 }

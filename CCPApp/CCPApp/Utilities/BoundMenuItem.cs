@@ -5,13 +5,10 @@ using System.Text;
 using System.Threading.Tasks;
 using Xamarin.Forms;
 
-namespace CCPApp.Items
+namespace CCPApp.Utilities
 {
-	public class ResizingLayout : StackLayout
+	public class BoundMenuItem<T> : MenuItem
 	{
-		public void OnChildChanged()
-		{
-			this.OnPropertyChanged();
-		}
+		public T BoundObject { get; set; }
 	}
 }

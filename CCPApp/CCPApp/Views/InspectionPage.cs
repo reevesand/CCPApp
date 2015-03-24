@@ -32,11 +32,16 @@ namespace CCPApp.Views
 			disputedButton.Text = "Disputed";
 			disputedButton.Clicked += ClickDisputedButton;
 
+			ToolbarItem reportButton = new ToolbarItem();
+			reportButton.Text = "Report";
+			reportButton.Clicked += ClickReportButton;
+
 			ToolbarItems.Add(scoreButton);
 			ToolbarItems.Add(unansweredButton);
 			ToolbarItems.Add(disputedButton);
+			ToolbarItems.Add(reportButton);
 			ChecklistModel checklist = inspection.Checklist;
-			foreach (Section section in checklist.Sections)
+			foreach (SectionModel section in checklist.Sections)
 			{
 				if (section.SectionParts.Count > 0)
 				{
@@ -54,6 +59,10 @@ namespace CCPApp.Views
 		}
 		private void PageChanged(object sender, EventArgs e)
 		{
+			if (CurrentPage == null)
+			{	//clicking "More" can yield a null page.
+				return;
+			}
 			ISectionPage page = (ISectionPage)CurrentPage;
 			page.Initialize();
 		}
@@ -75,12 +84,23 @@ namespace CCPApp.Views
 		private void ClickDisputedButton(object sender, EventArgs e)
 		{
 			Device.BeginInvokeOnMainThread(async () =>
-				{
-					DisputedPage page = new DisputedPage(inspection, this);
-					await App.Navigation.PushAsync(page);
-				});
+			{
+				DisputedPage page = new DisputedPage(inspection, this);
+				await App.Navigation.PushAsync(page);
+			});
 		}
-		public ISectionPage SetSectionPage(Section section)
+		private void ClickReportButton(object sender, EventArgs e)
+		{
+			Device.BeginInvokeOnMainThread(async () =>
+			{
+				//Pop up a loading page if this proves to be slow.
+				string generatedReport = ReportPage.GeneratePdf(inspection);
+				ReportPage page = new ReportPage(generatedReport);
+				await App.Navigation.PushAsync(page);
+			});
+		}
+
+		public ISectionPage SetSectionPage(SectionModel section)
 		{
 			this.CurrentPage = this.Children.Single(s => ((ISectionPage)s).GetCurrentSection().Id == section.Id);
 			return (ISectionPage)CurrentPage;
@@ -90,16 +110,16 @@ namespace CCPApp.Views
 	public interface ISectionPage
 	{
 		void Initialize();
-		Section GetCurrentSection();
+		SectionModel GetCurrentSection();
 		Question GetCurrentQuestion();
 		void SetSelectedQuestion(Question question);
 	}
 	internal class SectionWithPartsPage : TabbedPage, ISectionPage
 	{
-		Section section;
+		SectionModel section;
 		bool initialized = false;
 		Inspection inspection;
-		public SectionWithPartsPage(Section section, Inspection inspection)
+		public SectionWithPartsPage(SectionModel section, Inspection inspection)
 		{
 			this.section = section;
 			this.inspection = inspection;
@@ -133,17 +153,17 @@ namespace CCPApp.Views
 			PartPage partPage = (PartPage)this.CurrentPage;
 			partPage.CurrentPage = partPage.Children.Single(q => ((QuestionPage)q).question.Id == question.Id);
 		}
-		public Section GetCurrentSection()
+		public SectionModel GetCurrentSection()
 		{
 			return section;
 		}
 	}
 	internal class SectionNoPartsPage : CarouselPage, ISectionPage
 	{
-		Section section;
+		SectionModel section;
 		bool initialized = false;
 		Inspection inspection;
-		public SectionNoPartsPage(Section section, Inspection inspection)
+		public SectionNoPartsPage(SectionModel section, Inspection inspection)
 		{
 			this.section = section;
 			this.inspection = inspection;
@@ -176,7 +196,7 @@ namespace CCPApp.Views
 		{
 			this.CurrentPage = this.Children.Single(q => ((QuestionPage)q).question.Id == question.Id);
 		}
-		public Section GetCurrentSection()
+		public SectionModel GetCurrentSection()
 		{
 			return section;
 		}

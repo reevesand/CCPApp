@@ -1,4 +1,5 @@
-﻿using CCPApp.Models;
+﻿using CCPApp.Items;
+using CCPApp.Models;
 using CCPApp.Views;
 using System;
 using System.Collections.Generic;
@@ -15,23 +16,27 @@ namespace CCPApp
 		{
 			InspectionButton button = (InspectionButton)sender;
 			Inspection inspection = button.inspection;
-			CreateInspectionPage page = new CreateInspectionPage();
+			EditInspectionPage page = new EditInspectionPage();
 			page.inspection = inspection;
 			page.CallingPage = (ChecklistPage)button.ParentView.ParentView;
 			await App.Navigation.PushModalAsync(page);
 		}
-		public static async void SelectInspectionButtonClicked(object sender, EventArgs e)
+		public static void SelectInspectionButtonClicked(object sender, EventArgs e)
 		{
 			InspectionButton button = (InspectionButton)sender;
 			Inspection inspection = button.inspection;
-			InspectionPage page = new InspectionPage(inspection);
-			await App.Navigation.PushAsync(page);
+			Device.BeginInvokeOnMainThread(async () =>
+			{
+				InspectionPage page = new InspectionPage(inspection);
+				await App.Navigation.PushAsync(page);
+			});
 		}
 
 		internal static List<QuestionPage> GenerateQuestionPages(List<Question> questions, Inspection inspection)
 		{
 			List<QuestionPage> pages = new List<QuestionPage>();
 			string MasterQuestionText = string.Empty;
+			List<Reference> MasterQuestionReferences = new List<Reference>();
 			int MasterQuestionNumber = -2;
 			foreach (Question question in questions)
 			{
@@ -40,10 +45,11 @@ namespace CCPApp
 				{
 					MasterQuestionNumber = question.Number;
 					MasterQuestionText = question.Text.Trim();
+					MasterQuestionReferences = question.References;
 				}
 				else if (question.Number == MasterQuestionNumber)
 				{
-					page = new QuestionPage(question, inspection, MasterQuestionText + "\n" + question.Text.Trim());
+					page = new QuestionPage(question, inspection, MasterQuestionText + "\n" + question.Text.Trim(),MasterQuestionReferences);
 				}
 				else
 				{
@@ -68,14 +74,23 @@ namespace CCPApp
 		public Inspection inspection { get; set; }
 	}
 
-	public class CreateInspectionPage : ContentPage
+	public class EditInspectionPage : ContentPage
 	{
 		public TableSection tableSection { get; set; }
 		public Inspection inspection { get; set; }
 		private EntryCell NameCell { get; set; }
 		public ChecklistPage CallingPage { get; set; }
-		public CreateInspectionPage()
+		public GenericPicker<Inspector> inspectorPicker { get; set; }
+		public EditInspectionPage(Inspection existingInspection = null)
 		{
+			if (existingInspection == null)
+			{
+				inspection = new Inspection();
+			}
+			else
+			{
+				inspection = existingInspection;
+			}
 			Title = "Create new Inspection";
 			TableView view = new TableView();
 			TableRoot root = new TableRoot("Create New Inspection");
@@ -84,9 +99,17 @@ namespace CCPApp
 			NameCell = new EntryCell
 			{
 				BindingContext = inspection,
-				Text = "Inspection Name:",
+				Label = "Inspection Name:",
 			};
 			NameCell.SetBinding(EntryCell.TextProperty, "Name");
+
+			inspectorPicker = new GenericPicker<Inspector>();
+			foreach (Inspector inspector in App.database.LoadAllInspectors())
+			{
+				inspectorPicker.AddItem(inspector);
+			}
+			ViewCell inspectorCell = new ViewCell { View = inspectorPicker };
+
 			ViewCell SaveCell = new ViewCell();
 			ViewCell CancelCell = new ViewCell();
 			Button saveButton = new Button();
@@ -99,6 +122,7 @@ namespace CCPApp
 			CancelCell.View = cancelButton;
 
 			section.Add(NameCell);
+			section.Add(inspectorCell);
 			section.Add(SaveCell);
 			section.Add(CancelCell);
 			root.Add(section);
@@ -112,13 +136,11 @@ namespace CCPApp
 			inspection.Name = NameCell.Text;
 			inspection.ChecklistId = checklist.Id;
 			checklist.Inspections.Add(inspection);
+			if (inspectorPicker.SelectedIndex >= 0)
+			{
+				inspection.inspectors.Add(inspectorPicker.SelectedItem);
+			}
 			App.database.SaveInspection(inspection);
-
-			/*ViewCell cell = new ViewCell();
-			Button button = new InspectionButton(inspection);
-			button.Clicked += InspectionHelper.SelectInspectionButtonClicked;
-			cell.View = button;
-			tableSection.Insert(tableSection.Count - 1, cell);*/
 
 			CallingPage.ResetInspections();
 

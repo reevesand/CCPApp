@@ -15,6 +15,7 @@
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <NuGetPackageImportStamp>7145bc6f</NuGetPackageImportStamp>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -36,16 +37,22 @@
   <ItemGroup>
     <Compile Include="App.cs" />
     <Compile Include="ChecklistHelper.cs" />
+    <Compile Include="IGeneratePdf.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="InspectionHelper.cs" />
-    <Compile Include="Items\GenericPicker.cs" />
-    <Compile Include="Items\ResizingEditor.cs" />
-    <Compile Include="Items\ResizingLayout.cs" />
+    <Compile Include="Models\InspectorModel.cs" />
+    <Compile Include="Utilities\BoundMenuItem.cs" />
+    <Compile Include="Utilities\GenericPicker.cs" />
+    <Compile Include="Utilities\IUnzipHelper.cs" />
     <Compile Include="Models\CommentModel.cs" />
     <Compile Include="Models\QuestionModel.cs" />
     <Compile Include="Models\ScoredQuestion.cs" />
+    <Compile Include="Utilities\IValuesHelper.cs" />
     <Compile Include="Views\ChecklistPage.cs" />
     <Compile Include="Views\CommentPage.cs" />
     <Compile Include="Views\DisputedPage.cs" />
+    <Compile Include="Views\FrontPage.cs" />
     <Compile Include="Views\InspectionPage.cs" />
     <Compile Include="Models\ChecklistModel.cs" />
     <Compile Include="DatabaseAccess.cs" />
@@ -55,12 +62,18 @@
     <Compile Include="Models\InspectionModel.cs" />
     <Compile Include="Models\SectionModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Views\InspectorsPage.cs" />
+    <Compile Include="Views\PdfPage.cs" />
     <Compile Include="Views\ReferencePage.cs" />
     <Compile Include="Views\QuestionPage.cs" />
+    <Compile Include="Views\ReportPage.cs" />
     <Compile Include="Views\ScoresPage.cs" />
     <Compile Include="Views\UnansweredPage.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="itextsharp">
+      <HintPath>..\..\..\..\..\Users\DAVIDJ\Downloads\iTextSharp-4.1.6-master\bin\Debug\itextsharp.dll</HintPath>
+    </Reference>
     <Reference Include="monotouch">
       <HintPath>..\..\..\..\..\Program Files (x86)\Reference Assemblies\Microsoft\Framework\MonoTouch\v1.0\monotouch.dll</HintPath>
     </Reference>

@@ -42,9 +42,12 @@ namespace CCPApp
 			database.CreateTable<Inspection>();
 			database.CreateTable<Question>();
 			database.CreateTable<ScoredQuestion>();
-			database.CreateTable<Section>();
+			database.CreateTable<SectionModel>();
 			database.CreateTable<SectionPart>();
 			database.CreateTable<Comment>();
+			database.CreateTable<Reference>();
+			database.CreateTable<Inspector>();
+			database.CreateTable<InspectorInspections>();
 		}
 		/*private async Task waitUntilReady()
 		{
@@ -92,37 +95,19 @@ namespace CCPApp
 			return database.InsertOrReplace(question, typeof(Question));
 		}*/
 
+		public IEnumerable<ChecklistModel> LoadAllChecklists()
+		{
+			return database.GetAllWithChildren<ChecklistModel>(null, true);
+		}
 		public ChecklistModel LoadChecklist(string id)
 		{
 			ChecklistModel checklist = database.Table<ChecklistModel>().SingleOrDefault(c => c.Id == id);
 			database.GetChildren(checklist, true);
 			return checklist;
 		}
-		/*public IEnumerable<Inspection> LoadInspectionsForChecklist(string checklistId)
-		{
-			return database.Table<Inspection>().Where(i => i.ChecklistId == checklistId);
-		}
-		public IEnumerable<Section> LoadSectionsForChecklist(string checklistId)
-		{
-			return database.Table<Section>().Where(s => s.ChecklistId == checklistId);
-		}
-		public IEnumerable<SectionPart> LoadPartsForSection(int? sectionId)
-		{
-			return database.Table<SectionPart>().Where(p => p.SectionId == sectionId);
-		}
-		public IEnumerable<Question> LoadQuestionsForSection(int? sectionId)
-		{
-			return database.Table<Question>().Where(q => q.SectionId == sectionId);
-		}
-		public IEnumerable<Question> LoadQuestionsForPart(int? partId)
-		{
-			return database.Table<Question>().Where(q => q.SectionPartId == partId);
-		}*/
 
 		public async void SaveInspection(Inspection inspection)
 		{
-			//await waitUntilReady();
-			//ExecutingAsyncTask = true;
 			Action action = new Action(() =>
 			{
 				lock (dbSync)
@@ -138,11 +123,16 @@ namespace CCPApp
 						comment.InspectionId = inspection.Id;
 						SaveComment(comment);
 					}
+					foreach (Inspector inspector in inspection.inspectors)
+					{
+						InspectorInspections link = new InspectorInspections();
+						link.InspectionId = inspection.Id;
+						link.InspectorId = inspector.Id;
+						database.InsertOrReplace(link);
+					}
 				}
 			});
 			await Task.Run(action);
-			
-			//ExecutingAsyncTask = false;
 		}
 		public async void SaveScore(ScoredQuestion score)
 		{
@@ -195,6 +185,33 @@ namespace CCPApp
 		public List<Comment> LoadCommentsForInspection(Inspection inspection)
 		{
 			return database.GetAllWithChildren<Comment>(comment => comment.InspectionId == inspection.Id);
+		}
+
+		public List<Inspector> LoadAllInspectors()
+		{
+			return database.GetAllWithChildren<Inspector>();
+		}
+		public void SaveInspector(Inspector inspector)
+		{			
+			database.InsertOrReplace(inspector);
+			foreach (Inspection inspection in inspector.inspections)
+			{
+				InspectorInspections link = new InspectorInspections();
+				link.InspectorId = inspector.Id;
+				link.InspectionId = inspection.Id;
+				database.InsertOrReplace(link);
+			}
+		}
+		public void deleteInspector(Inspector inspector)
+		{
+			database.Delete(inspector);
+			foreach (Inspection inspection in inspector.inspections)
+			{
+				InspectorInspections link = new InspectorInspections();
+				link.InspectorId = inspector.Id;
+				link.InspectionId = inspection.Id;
+				database.Delete(link);
+			}
 		}
 	}
 }

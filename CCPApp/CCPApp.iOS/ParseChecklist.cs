@@ -116,7 +116,7 @@ namespace CCPApp.iOS
 		protected void ParseSections(XmlNode node)
 		{
 			// create new section
-			Section section = new Section();
+			SectionModel section = new SectionModel();
 			section.Label = AttributeString(node.Attributes["Label"]);
 			section.Title = AttributeString(node.Attributes["Title"]);
 			section.ShortTitle = AttributeString(node.Attributes["ShortTitle"]);
@@ -125,6 +125,7 @@ namespace CCPApp.iOS
 			// add section to the given section list
 			Model.Sections.Add(section);
 			section.checklist = Model;
+			section.ChecklistId = Model.Id;
 
 			// loop through child nodes
 			for (int i = 0; i < node.ChildNodes.Count; i++)
@@ -148,7 +149,7 @@ namespace CCPApp.iOS
 					//UnknownNode(child);
 			}
 		}
-		protected void ParseSectionParts(XmlNode node, Section section)
+		protected void ParseSectionParts(XmlNode node, SectionModel section)
 		{
 			// create new part
 			SectionPart part = new SectionPart();
@@ -159,6 +160,7 @@ namespace CCPApp.iOS
 			// add part to the given part list
 			section.SectionParts.Add(part);
 			part.section = section;
+			part.SectionId = section.Id;
 
 			// loop through child nodes
 			for (int i = 0; i < node.ChildNodes.Count; i++)

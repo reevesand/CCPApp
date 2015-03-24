@@ -7,14 +7,12 @@ using Xamarin.Forms;
 
 namespace CCPApp.Views
 {
-	public class ReferencePage : ContentPage
+	public class ReferencePage : PdfPage
 	{
-		public string FileName { get; set; }
-		public int PageNumber { get; set; }
-		public ReferencePage()
+		public ReferencePage(string fileName, int pageNumber)
+			: base(fileName, pageNumber)
 		{
-			FileName = "Reference List.doc";
-			PageNumber = 2;
+
 		}
 	}
 }

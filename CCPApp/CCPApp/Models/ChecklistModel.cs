@@ -7,6 +7,7 @@ using System.Xml;
 using Xamarin.Forms;
 using SQLite.Net.Attributes;
 using SQLiteNetExtensions.Attributes;
+using System.Drawing;
 
 namespace CCPApp.Models
 {
@@ -48,17 +49,17 @@ namespace CCPApp.Models
 		[OneToMany(CascadeOperations = CascadeOperation.All)]
 		public List<Inspection> Inspections { get; set; }
 		[OneToMany(CascadeOperations = CascadeOperation.All)]
-		public List<Section> Sections { get; set; }
+		public List<SectionModel> Sections { get; set; }
 
 		public ChecklistModel()
 		{
 			Inspections = new List<Inspection>();
-			Sections = new List<Section>();
+			Sections = new List<SectionModel>();
 		}
 		public List<Question> GetAllQuestions()
 		{
 			List<Question> questions = new List<Question>();
-			foreach (Section section in Sections)
+			foreach (SectionModel section in Sections)
 			{
 				questions.AddRange(section.AllQuestions());
 			}

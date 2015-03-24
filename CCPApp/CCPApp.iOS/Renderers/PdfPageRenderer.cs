@@ -12,9 +12,10 @@ using CCPApp.iOS.Renderers;
 using System.Drawing;
 using System.Threading.Tasks;
 using MonoTouch.CoreGraphics;
+using System.IO;
 
 //[assembly:ExportRenderer(typeof(PdfViewer), typeof(PdfViewerRenderer))]
-[assembly:ExportRenderer(typeof(ReferencePage), typeof(ReferencePageRenderer))]
+[assembly:ExportRenderer(typeof(PdfPage), typeof(PdfPageRenderer))]
 namespace CCPApp.iOS.Renderers
 {
 	/*public class PdfViewerRenderer : ViewRenderer<PdfViewer, UIWebView>
@@ -53,7 +54,7 @@ namespace CCPApp.iOS.Renderers
 		}
 	}*/
 
-	public class ReferencePageRenderer : PageRenderer
+	public class PdfPageRenderer : PageRenderer
 	{
 		int NumberOfPages = 0;
 		float PageLength = 0;
@@ -64,8 +65,8 @@ namespace CCPApp.iOS.Renderers
 			{
 				return;
 			}
-			ReferencePage page = (ReferencePage)Element;
-			string documentsFolder = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
+			PdfPage page = (PdfPage)Element;
+			string documentsFolder = new FileManage().GetLibraryFolder();
 			string path = System.IO.Path.Combine(documentsFolder, page.FileName);
 
 			UIWebView webView = new UIWebView();
@@ -88,7 +89,7 @@ namespace CCPApp.iOS.Renderers
 		public override void ViewDidAppear(bool animated)
 		{
 			base.ViewDidAppear(animated);
-			ReferencePage page = (ReferencePage)Element;
+			PdfPage page = (PdfPage)Element;
 			if (page.PageNumber > 1 && NumberOfPages > 0)
 			{
 				UIWebView webView = (UIWebView)View;

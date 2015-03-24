@@ -1,4 +1,6 @@
-﻿using CCPApp.Models;
+﻿using CCPApp.Items;
+using CCPApp.Models;
+using CCPApp.Views;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,9 +15,26 @@ namespace CCPApp
 		public static DatabaseAccess database = new DatabaseAccess();
 		public App()
 		{
-			ListView checklistsView = new ListView();
 			List<ChecklistModel> checklists = new List<ChecklistModel>();
-			///*
+
+			IEnumerable<string> zipFileNames = DependencyService.Get<IFileManage>().GetAllValidFiles();
+			List<ChecklistModel> newChecklists = new List<ChecklistModel>();
+			foreach (string zipName in zipFileNames)
+			{
+				string unzippedDirectory = DependencyService.Get<IUnzipHelper>().Unzip(zipName);
+				string xmlFile = DependencyService.Get<IFileManage>().GetXmlFile(unzippedDirectory);
+				string checklistId = DependencyService.Get<IParseChecklist>().GetChecklistId(xmlFile);
+				ChecklistModel model = ChecklistModel.Initialize(xmlFile);
+				//move the files to a new folder.
+				DependencyService.Get<IFileManage>().MoveDirectoryToPrivate(unzippedDirectory, checklistId);
+				//Delete the zip file once we're done with it.
+				DependencyService.Get<IFileManage>().DeleteFile(zipName);
+				newChecklists.Add(model);
+				checklists.Add(model);
+			}
+			checklists.AddRange(database.LoadAllChecklists());
+
+			/*
 			IEnumerable<string> xmlFileNames = DependencyService.Get<IFileManage>().GetAllValidFiles();
 			List<ChecklistModel> newChecklists = new List<ChecklistModel>();
 			foreach (string fileName in xmlFileNames)
@@ -30,40 +49,16 @@ namespace CCPApp
 				else
 				{
 					model = ChecklistHelper.LoadChecklistDetails(checklistId);
-					//model.loadInspections();
 				}
 				checklists.Add(model);
 			}
-			database.SaveChecklists(newChecklists);
-			//*/
-			/*
-			ChecklistModel fakeChecklist = new ChecklistModel();
-			fakeChecklist.Title = "Sample Checklist";
-			fakeChecklist.Id = "FakeID";
-			checklists.Add(fakeChecklist);
-			*/
-			checklistsView.ItemsSource = checklists;
-			checklistsView.ItemTemplate = new DataTemplate(() =>
-			{
-				ChecklistButton button = new ChecklistButton();
-				button.Clicked += ChecklistHelper.ChecklistButtonClicked;
-				button.SetBinding(Button.TextProperty, "Title");
-				button.SetBinding(ChecklistButton.ChecklistProperty, "SelfReference");
-				
-				ViewCell cell = new ViewCell
-				{
-					View = button
-				};
+			 * */
 
-				return cell;
-			});
-			MainPage = new NavigationPage(new ContentPage
-			{
-				Content = checklistsView,
-				Padding = new Thickness(10, Device.OnPlatform(20, 0, 0), 10, 5),
-				//Padding = new Thickness(0,0,0,0),
-				Title = "Select a checklist"
-			});
+			database.SaveChecklists(newChecklists);
+
+			FrontPage frontPage = new FrontPage(checklists);
+			
+			MainPage = new NavigationPage(frontPage);
 			Navigation = MainPage.Navigation;
 		}
 	}

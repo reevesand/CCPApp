@@ -18,7 +18,7 @@ namespace CCPApp.Views
 			this.inspection = inspection;
 			inspectionPage = page;
 			List<Question> questions = new List<Question>();
-			foreach (Section section in inspection.Checklist.Sections)
+			foreach (SectionModel section in inspection.Checklist.Sections)
 			{
 				questions.AddRange(section.AllScorableQuestions());
 			}

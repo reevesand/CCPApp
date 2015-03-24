@@ -11,7 +11,7 @@ namespace CCPApp.Models
 	/// <summary>
 	/// Represents a section in the checklist.
 	/// </summary>
-	public class Section
+	public class SectionModel
 	{
 		[PrimaryKey, AutoIncrement]
 		public int? Id { get; set; }
@@ -28,7 +28,7 @@ namespace CCPApp.Models
 		public List<SectionPart> SectionParts { get; set; }
 		public string ScoringModel = "YesNo";
 
-		public Section()
+		public SectionModel()
 		{
 			Questions = new List<Question>();
 			SectionParts = new List<SectionPart>();
@@ -65,10 +65,10 @@ namespace CCPApp.Models
 		public int? Id { get; set; }
 		[OneToMany(CascadeOperations = CascadeOperation.All)]
 		public List<Question> Questions { get; set; }
-		[ForeignKey(typeof(Section))]
+		[ForeignKey(typeof(SectionModel))]
 		public int? SectionId { get; set; }
 		[ManyToOne(CascadeOperations = CascadeOperation.All)]
-		public Section section { get; set; }
+		public SectionModel section { get; set; }
 		public string Label { get; set; }
 		public string Description { get; set; }
 		public string ScoringModel = "YesNo";
@@ -83,5 +83,22 @@ namespace CCPApp.Models
 		{
 			return "Part " + Label + ": " + Description;
 		}
+	}
+
+	/// <summary>
+	/// Points to a section, but also contains information important for reporting,
+	/// including the parts to be rendered for this section.
+	/// </summary>
+	public class ReportSection
+	{
+		public SectionModel section { get; private set; }
+		public List<SectionPart> PartsToRender { get; set; }
+
+		public ReportSection(SectionModel section)
+		{
+			this.section = section;
+			PartsToRender = new List<SectionPart>();
+		}
+
 	}
 }
