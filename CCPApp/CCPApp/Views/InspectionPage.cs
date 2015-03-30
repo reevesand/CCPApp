@@ -96,6 +96,7 @@ namespace CCPApp.Views
 				//Pop up a loading page if this proves to be slow.
 				string generatedReport = ReportPage.GeneratePdf(inspection);
 				ReportPage page = new ReportPage(generatedReport);
+				//PrepareReportPage page = new PrepareReportPage();
 				await App.Navigation.PushAsync(page);
 			});
 		}

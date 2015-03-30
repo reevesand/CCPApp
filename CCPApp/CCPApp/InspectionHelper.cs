@@ -14,10 +14,9 @@ namespace CCPApp
 	{
 		public static async void CreateInspectionButtonClicked(object sender, EventArgs e)
 		{
-			InspectionButton button = (InspectionButton)sender;
-			Inspection inspection = button.inspection;
-			EditInspectionPage page = new EditInspectionPage();
-			page.inspection = inspection;
+			CreateInspectionButton button = (CreateInspectionButton)sender;
+			ChecklistModel checklist = button.checklist;
+			EditInspectionPage page = new EditInspectionPage(null,checklist);
 			page.CallingPage = (ChecklistPage)button.ParentView.ParentView;
 			await App.Navigation.PushModalAsync(page);
 		}
@@ -73,6 +72,14 @@ namespace CCPApp
 		}
 		public Inspection inspection { get; set; }
 	}
+	public class CreateInspectionButton : Button
+	{
+		public ChecklistModel checklist { get; set; }
+		public CreateInspectionButton(ChecklistModel checklist)
+		{
+			this.checklist = checklist;
+		}
+	}
 
 	public class EditInspectionPage : ContentPage
 	{
@@ -81,19 +88,22 @@ namespace CCPApp
 		private EntryCell NameCell { get; set; }
 		public ChecklistPage CallingPage { get; set; }
 		public GenericPicker<Inspector> inspectorPicker { get; set; }
-		public EditInspectionPage(Inspection existingInspection = null)
+		public EditInspectionPage(Inspection existingInspection = null, ChecklistModel checklist = null)
 		{
 			if (existingInspection == null)
 			{
 				inspection = new Inspection();
+				inspection.Checklist = checklist;
+				inspection.ChecklistId = checklist.Id;
+				Title = "Create new Inspection";
 			}
 			else
 			{
 				inspection = existingInspection;
+				Title = "Edit Inspection";
 			}
-			Title = "Create new Inspection";
 			TableView view = new TableView();
-			TableRoot root = new TableRoot("Create New Inspection");
+			TableRoot root = new TableRoot("Edit Inspection");
 			TableSection section = new TableSection();
 			Padding = new Thickness(0, Device.OnPlatform(20, 0, 0), 0, 0);
 			NameCell = new EntryCell
@@ -104,9 +114,18 @@ namespace CCPApp
 			NameCell.SetBinding(EntryCell.TextProperty, "Name");
 
 			inspectorPicker = new GenericPicker<Inspector>();
-			foreach (Inspector inspector in App.database.LoadAllInspectors())
+			List<Inspector> allInspectors = App.database.LoadAllInspectors();
+			foreach (Inspector inspector in allInspectors)
 			{
 				inspectorPicker.AddItem(inspector);
+			}
+			if (inspection.inspectors.Any())
+			{	//TODO update to deal with multiple inspectors
+				try
+				{
+					inspectorPicker.SelectedItem = inspection.inspectors.First();
+				}
+				catch (KeyNotFoundException){}
 			}
 			ViewCell inspectorCell = new ViewCell { View = inspectorPicker };
 
@@ -135,7 +154,10 @@ namespace CCPApp
 			ChecklistModel checklist = inspection.Checklist;
 			inspection.Name = NameCell.Text;
 			inspection.ChecklistId = checklist.Id;
-			checklist.Inspections.Add(inspection);
+			if (!checklist.Inspections.Contains(inspection))
+			{
+				checklist.Inspections.Add(inspection);
+			}
 			if (inspectorPicker.SelectedIndex >= 0)
 			{
 				inspection.inspectors.Add(inspectorPicker.SelectedItem);

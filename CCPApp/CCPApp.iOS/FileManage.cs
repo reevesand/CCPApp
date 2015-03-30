@@ -46,11 +46,11 @@ namespace CCPApp.iOS
 			File.Delete(fileName);
 		}
 
-		public void CopyFileFromPrivateToPublic(string SourceName, string DestinationName)
+		public void CopyFileFromTempToPublic(string SourceName, string DestinationName)
 		{
-			string privatePath = GetLibraryFolder();
+			string tempPath = GetTempFolder();
 			string documentsPath = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
-			string sourcePath = Path.Combine(privatePath, SourceName);
+			string sourcePath = Path.Combine(tempPath, SourceName);
 			string destinationPath = Path.Combine(documentsPath, DestinationName);
 			File.Copy(sourcePath, destinationPath, true);
 		}
@@ -60,6 +60,16 @@ namespace CCPApp.iOS
 			string documentsPath = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
 			string libraryPath = Path.Combine(documentsPath, "..", "Library");
 			return libraryPath;
+		}
+		public string GetTempFolder()
+		{
+			return Path.GetTempPath();
+		}
+		public void DeleteTempFile(string fileName)
+		{
+			string tempPath = GetTempFolder();
+			string fullPath = Path.Combine(tempPath, fileName);
+			File.Delete(fullPath);
 		}
 	}
 }

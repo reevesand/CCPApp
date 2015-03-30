@@ -18,6 +18,8 @@ namespace CCPApp.Views
 		GenericPicker<Question> questionPicker;
 		Comment existingComment = null;
 		Editor commentText;
+		Editor discussionText;
+		Editor recommendationText;
 		//ResizingLayout layout;
 
 		public CommentPage(Inspection inspection, Question initialQuestion)
@@ -31,6 +33,10 @@ namespace CCPApp.Views
 				VerticalOptions = LayoutOptions.Center,
 				HorizontalOptions = LayoutOptions.Center
 			};
+			Page frontPage = App.Navigation.NavigationStack.First();
+			double width = frontPage.Width;
+			layout.WidthRequest = width * .95;
+
 			//Choose comment type
 			Label chooseCommentTypeLabel = new Label{Text="Choose comment type"};
 			commentTypePicker = new GenericPicker<CommentType>();
@@ -49,22 +55,40 @@ namespace CCPApp.Views
 			questionPicker.SelectedIndexChanged += SelectQuestion;
 
 			//Comment description
-			Label commentSubjectLabel = new Label{Text="Comment subject"};
+			Label commentSubjectLabel = new Label{Text="Subject"};
 			subjectTextEditor = new Editor();
+			subjectTextEditor.HeightRequest = 80;
 
 			//Enter comment
 			commentIndicatorLabel = new Label{Text="Comment:"};
 			commentText = new Editor();
-			//commentText.TextChanged += CommentTextChanged;
+			commentText.HeightRequest = 80;
+
+			//Discussion
+			Label DiscussionLabel = new Label { Text = "Discussion:" };
+			discussionText = new Editor();
+			discussionText.HeightRequest = 80;
+
+			//Recommendation
+			Label RecommendationLabel = new Label { Text = "Recommendation/Action Taken or Required:" };
+			recommendationText = new Editor();
+			recommendationText.HeightRequest = 80;
 
 			//Choose date
 			Label chooseDateLabel = new Label{Text="Date:"};
 			DatePicker date = new DatePicker();
+			date.Date = DateTime.Now;
 
 			//Save button
 			Button saveButton = new Button { Text = "Save Comment" };
 			saveButton.Clicked += SaveComment;
+
+			//Delete button
+			Button deleteButton = new Button { Text = "Delete Comment" };
+			deleteButton.Clicked += DeleteComment;
+
 			//TODO: choose inspector
+			//TODO more fields, I guess.
 
 			//Perform the setup actions.
 			commentTypePicker.SelectedIndex = 0;
@@ -78,10 +102,19 @@ namespace CCPApp.Views
 			layout.Children.Add(subjectTextEditor);
 			layout.Children.Add(commentIndicatorLabel);
 			layout.Children.Add(commentText);
+			layout.Children.Add(DiscussionLabel);
+			layout.Children.Add(discussionText);
+			layout.Children.Add(RecommendationLabel);
+			layout.Children.Add(recommendationText);
 			layout.Children.Add(chooseDateLabel);
 			layout.Children.Add(date);
 			layout.Children.Add(saveButton);
-			this.Content = layout;
+			layout.Children.Add(deleteButton);
+
+			ScrollView scroll = new ScrollView();
+			scroll.Content = layout;
+
+			this.Content = scroll;
 		}
 
 		void SaveComment(object sender, EventArgs e)
@@ -101,12 +134,34 @@ namespace CCPApp.Views
 			existingComment.CommentText = commentText.Text;
 			existingComment.Subject = subjectTextEditor.Text;
 			existingComment.type = commentTypePicker.SelectedItem;
+			existingComment.Recommendation = recommendationText.Text;
+			existingComment.Discussion = discussionText.Text;
 			App.database.SaveComment(existingComment);
 			Device.BeginInvokeOnMainThread(async () =>
 			{
 				await App.Navigation.PopAsync();
 			});
 		}
+		void DeleteComment(object sender, EventArgs e)
+		{
+			if (existingComment == null)
+			{
+				//no comment to delete.
+			}
+			else
+			{
+				if (inspection.comments.Contains(existingComment))
+				{
+					inspection.comments.Remove(existingComment);
+				}
+				App.database.DeleteComment(existingComment);
+			}
+			Device.BeginInvokeOnMainThread(async () =>
+			{
+				await App.Navigation.PopAsync();
+			});
+		}
+
 		private void SelectCommentType(object sender, EventArgs e)
 		{
 			//Update commentIndicatorLabel
@@ -137,6 +192,8 @@ namespace CCPApp.Views
 			else
 			{
 				commentText.Text = existingComment.CommentText;
+				discussionText.Text = existingComment.Discussion;
+				recommendationText.Text = existingComment.Recommendation;
 				subjectTextEditor.Text = existingComment.Subject;
 			}
 		}

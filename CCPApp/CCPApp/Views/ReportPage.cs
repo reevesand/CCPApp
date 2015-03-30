@@ -25,6 +25,7 @@ namespace CCPApp.Views
 			string fileName = "Report.pdf";
 			IGeneratePdf pdfMaker = DependencyService.Get<IGeneratePdf>();
 			pdfMaker.Initialize(inspection);
+			//draw comment pages
 			foreach (Comment comment in inspection.comments)
 			{
 				pdfMaker.CreateCommentPage(comment);
@@ -33,20 +34,154 @@ namespace CCPApp.Views
 					pdfMaker.NewPage();
 				}
 			}
-			pdfMaker.NewPage();
-			foreach (SectionModel section in inspection.Checklist.Sections)
+			//draw question listing
+			List<ReportSection> reportSections = PrepareInspectionForScoring(inspection, pdfMaker);
+			if (true)
 			{
-				ReportSection reportSection = new ReportSection(section);
-				reportSection.PartsToRender = section.SectionParts;
-				pdfMaker.CreateQuestionSection(reportSection);
-				if (section != inspection.Checklist.Sections.Last())
+				foreach (ReportSection section in reportSections)
 				{
-					pdfMaker.NewPage();
+					pdfMaker.CreateQuestionSection(section);
+					if (section != reportSections.Last())
+					{
+						pdfMaker.NewPage();
+					}
+					break;
 				}
 			}
+
+			//draw section totals
+			pdfMaker.NewPageIfNotEmpty();
+			pdfMaker.CreateSectionTotals();
+
+			//draw checklist structure
+			pdfMaker.NewPageIfNotEmpty();
+			pdfMaker.CreateStructure();
+
+			//draw scoresheet
+			pdfMaker.NewPageIfNotEmpty();
+			pdfMaker.CreateScoreSheet();
+
+			//draw scores graph
+			pdfMaker.NewPageIfNotEmpty();
+			pdfMaker.CreateScoreGraph();
+
 			pdfMaker.Finish();
 
 			return fileName;
+		}
+
+		private static List<ReportSection> PrepareInspectionForScoring(Inspection inspection, IGeneratePdf pdfMaker)
+		{
+			List<ReportSection> reportSections = new List<ReportSection>();
+			pdfMaker.NewPageIfNotEmpty();
+			double sumTotalAvailablePoints = 0;
+			double sumTotalEarnedPoints = 0;
+			bool anyUnacceptables = false;
+			foreach (SectionModel section in inspection.Checklist.Sections)
+			{
+				bool anyUnacceptableParts = false;
+				if (section.SectionParts.Any())
+				{
+					double sumSectionAvailablePoints = 0;
+					double sumSectionEarnedPoints = 0;
+					foreach (SectionPart part in section.SectionParts)
+					{
+						Tuple<double, double, double> partScores = ScoringHelper.ScorePart(part, inspection);
+						part.availablePoints = partScores.Item1;
+						part.earnedPoints = partScores.Item2;
+						part.percentage = partScores.Item3;
+						if (part.availablePoints > 0)
+						{
+							double percentScore = part.percentage * 100;
+							if (percentScore < inspection.Checklist.ScoreThresholdSatisfactory)
+							{
+								part.rating = Rating.Unacceptable;
+								anyUnacceptableParts = true;
+							}
+							else if (percentScore < inspection.Checklist.ScoreThresholdCommendable)
+							{
+								part.rating = Rating.Satisfactory;
+							}
+							else
+							{
+								part.rating = Rating.Commendable;
+							}
+						}
+						sumSectionAvailablePoints += partScores.Item1;
+						sumSectionEarnedPoints += partScores.Item2;
+					}
+					section.availablePoints = sumSectionAvailablePoints;
+					section.earnedPoints = sumSectionEarnedPoints;
+					if (sumSectionAvailablePoints > 0)
+					{
+						section.percentage = sumSectionEarnedPoints / sumSectionAvailablePoints;
+					}
+					else
+					{
+						section.percentage = 0;
+					}
+				}
+				else
+				{
+					Tuple<double, double, double> sectionScores = ScoringHelper.ScoreSection(section, inspection);
+					section.availablePoints = sectionScores.Item1;
+					section.earnedPoints = sectionScores.Item2;
+					section.percentage = sectionScores.Item3;
+				}
+
+				if (section.availablePoints > 0)
+				{
+					double percentScore = section.percentage * 100;
+					if (percentScore < inspection.Checklist.ScoreThresholdSatisfactory)
+					{
+						anyUnacceptables = true;
+						section.rating = Rating.Unacceptable;
+					}
+					else if (percentScore < inspection.Checklist.ScoreThresholdCommendable || anyUnacceptableParts)
+					{ section.rating = Rating.Satisfactory; }
+					else
+					{ section.rating = Rating.Commendable; }
+				}
+				else
+				{
+					section.rating = Rating.None;
+				}
+
+				sumTotalAvailablePoints += section.availablePoints;
+				sumTotalEarnedPoints += section.earnedPoints;
+				if (true)	//if we're supposed to render this section
+				{
+					ReportSection reportSection = new ReportSection(section);
+					reportSection.PartsToRender = section.SectionParts;
+					reportSections.Add(reportSection);
+
+				}
+			}
+			inspection.availablePoints = sumTotalAvailablePoints;
+			inspection.earnedPoints = sumTotalEarnedPoints;
+			if (sumTotalAvailablePoints > 0)
+			{
+				inspection.percentage = sumTotalEarnedPoints / sumTotalAvailablePoints;
+				double percentScore = inspection.percentage * 100;
+				if (percentScore < inspection.Checklist.ScoreThresholdSatisfactory)
+				{
+					inspection.rating = Rating.Unacceptable;
+				}
+				else if (percentScore < inspection.Checklist.ScoreThresholdCommendable || anyUnacceptables)
+				{
+					inspection.rating = Rating.Satisfactory;
+				}
+				else
+				{
+					inspection.rating = Rating.Commendable;
+				}
+			}
+			else
+			{
+				inspection.percentage = 0;
+				inspection.rating = Rating.None;
+			}
+			return reportSections;
 		}
 
 		public async void OpenExportPage(object Sender, EventArgs e)
@@ -69,12 +204,19 @@ namespace CCPApp.Views
 			Button saveButton = new Button();
 			saveButton.Text = "Save Report";
 			saveButton.Clicked += SaveReport;
+			Button cancelButton = new Button();
+			cancelButton.Text = "Cancel";
+			cancelButton.Clicked += (async (object sender, EventArgs e) =>
+			{
+				await App.Navigation.PopModalAsync();
+			});
 
 			layout.VerticalOptions = LayoutOptions.Center;
 			layout.HorizontalOptions = LayoutOptions.Center;
 			layout.Children.Add(instructionsLabel);
 			layout.Children.Add(fileNameBox);
 			layout.Children.Add(saveButton);
+			layout.Children.Add(cancelButton);
 
 			Content = layout;
 		}
@@ -82,13 +224,20 @@ namespace CCPApp.Views
 		public async void SaveReport(object Sender, EventArgs e)
 		{
 			string destinationFile = fileNameBox.Text;
+			if (destinationFile == null)
+			{
+				destinationFile = string.Empty;
+			}
 			if (!destinationFile.EndsWith(".pdf"))
 			{
 				destinationFile += ".pdf";
 			}
-			DependencyService.Get<IFileManage>().CopyFileFromPrivateToPublic(filename, destinationFile);
+			DependencyService.Get<IFileManage>().CopyFileFromTempToPublic(filename, destinationFile);
+			DependencyService.Get<IFileManage>().DeleteTempFile(filename);
 
 			await App.Navigation.PopModalAsync();
 		}
+
+		
 	}
 }

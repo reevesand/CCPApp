@@ -1,5 +1,6 @@
 ﻿using CCPApp.Items;
 using CCPApp.Models;
+using CCPApp.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -64,7 +65,7 @@ namespace CCPApp.Views
 			layout.Children.Add(sectionScoreLabel);
 			layout.Children.Add(partPicker);
 			layout.Children.Add(partScoreLabel);
-			float cummulativeScore = ScoreInspection(inspection);
+			double cummulativeScore = ScoringHelper.ScoreInspection(inspection).Item3;
 			Label cummulativeScoreLabel = new Label
 			{
 				Text = "Cummulative Score: " + (cummulativeScore * 100).ToString("0.00") + "%",
@@ -92,7 +93,7 @@ namespace CCPApp.Views
 		{
 			GenericPicker<SectionModel> picker = (GenericPicker<SectionModel>)sender;
 			SectionModel section = picker.SelectedItem;
-			float sectionScore = ScoreSection(section, inspection);
+			double sectionScore = ScoringHelper.ScoreSection(section, inspection).Item3;
 			sectionScoreLabel.Text = "Section score: " + (sectionScore * 100).ToString("0.00") + "%";
 			setScoresColor(sectionScore, sectionScoreLabel);
 			if (section.SectionParts.Count == 0)
@@ -123,13 +124,13 @@ namespace CCPApp.Views
 				return;
 			}
 			SectionPart part = picker.SelectedItem;
-			float partScore = ScorePart(part, inspection);
+			double partScore = ScoringHelper.ScorePart(part, inspection).Item3;
 			partScoreLabel.Text = "Part score: " + (partScore * 100).ToString("0.00") + "%";
 			setScoresColor(partScore, partScoreLabel);
 		}
-		private void setScoresColor(float score, VisualElement element)
+		private void setScoresColor(double score, VisualElement element)
 		{
-			float percentScore = score * 100;
+			double percentScore = score * 100;
 			if (percentScore >= scoresThreshold.Commendable)
 			{
 				element.BackgroundColor = Color.Blue;
@@ -146,39 +147,6 @@ namespace CCPApp.Views
 
 		private static async void BackButtonClicked(object sender, EventArgs e){
 			await App.Navigation.PopAsync();
-		}
-
-		private static float ScoreSection(SectionModel section, Inspection inspection)
-		{
-			List<ScoredQuestion> scores = inspection.scores;
-			List<ScoredQuestion> RelevantScores = scores.Where(score => score.question.SectionId == section.Id && score.question.IsScorable()).ToList();
-
-			return ScoreQuestions(RelevantScores);
-		}
-		private static float ScorePart(SectionPart part, Inspection inspection)
-		{
-			List<ScoredQuestion> scores = inspection.scores;
-			List<ScoredQuestion> RelevantScores = scores.Where(score => score.question.SectionPartId == part.Id && score.question.IsScorable()).ToList();
-
-			return ScoreQuestions(RelevantScores);
-		}
-		private static float ScoreInspection(Inspection inspection)
-		{
-			List<ScoredQuestion> scores = inspection.scores;
-			List<ScoredQuestion> RelevantScores = scores.Where(score => score.question.IsScorable()).ToList();
-
-			return ScoreQuestions(RelevantScores);
-		}
-
-		private static float ScoreQuestions(IEnumerable<ScoredQuestion> scores)
-		{
-			float availablePoints = scores.Count(score => score.answer == Answer.Yes || score.answer == Answer.No);
-			if (availablePoints == 0)
-			{
-				return 0;
-			}
-			float scoredPoints = scores.Count(score => (score.answer == Answer.Yes && score.question.InvertScore == false) || (score.answer == Answer.No && score.question.InvertScore == true));
-			return scoredPoints / availablePoints;
 		}
 	}
 	

@@ -42,9 +42,7 @@ namespace CCPApp.Views
 
 				cells.Add(cell);
 			}
-			Inspection newInspection = new Inspection();
-			newInspection.Checklist = checklist;
-			InspectionButton createInspectionButton = new InspectionButton(newInspection);
+			CreateInspectionButton createInspectionButton = new CreateInspectionButton(checklist);
 			createInspectionButton.Text = "Start new Inspection";
 			createInspectionButton.Clicked += InspectionHelper.CreateInspectionButtonClicked;
 			ViewCell createInspectionButtonView = new ViewCell();
@@ -62,14 +60,27 @@ namespace CCPApp.Views
 		{
 			BoundMenuItem<Inspection> button = (BoundMenuItem<Inspection>)sender;
 			Inspection inspection = button.BoundObject;
-			EditInspectionPage page = new EditInspectionPage();
-			page.inspection = inspection;
-			page.CallingPage = (ChecklistPage)button.ParentView.ParentView;
+			EditInspectionPage page = new EditInspectionPage(inspection);
+			page.CallingPage = this;
 			await App.Navigation.PushModalAsync(page);
 		}
 		public async void deleteInspection(object sender, EventArgs e)
 		{
-
+			//Warn that this is permanent.  Ask if they're sure.
+			BoundMenuItem<Inspection> button = (BoundMenuItem<Inspection>)sender;
+			Inspection inspection = button.BoundObject;
+			bool answer = await DisplayAlert("Confirm Deletion", "Are you sure you want to delete "+inspection.Name+"?  All its data and scores will be lost.", "Yes", "No");
+			if (!answer)
+			{
+				return;
+			}			
+			Inspection.DeleteInspection(inspection);
+			if (checklist.Inspections.Contains(inspection))
+			{	//This is supposed to be removed in the DeleteInspection method, but there appear to be multiple copies of som
+					//objects in memory.
+				checklist.Inspections.Remove(inspection);
+			}
+			ResetInspections();
 		}
 	}
 }

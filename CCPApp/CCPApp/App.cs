@@ -16,7 +16,7 @@ namespace CCPApp
 		public App()
 		{
 			List<ChecklistModel> checklists = new List<ChecklistModel>();
-
+			/*
 			IEnumerable<string> zipFileNames = DependencyService.Get<IFileManage>().GetAllValidFiles();
 			List<ChecklistModel> newChecklists = new List<ChecklistModel>();
 			foreach (string zipName in zipFileNames)
@@ -31,30 +31,10 @@ namespace CCPApp
 				DependencyService.Get<IFileManage>().DeleteFile(zipName);
 				newChecklists.Add(model);
 				checklists.Add(model);
-			}
+			}*/
+			//database.SaveChecklists(newChecklists);
+
 			checklists.AddRange(database.LoadAllChecklists());
-
-			/*
-			IEnumerable<string> xmlFileNames = DependencyService.Get<IFileManage>().GetAllValidFiles();
-			List<ChecklistModel> newChecklists = new List<ChecklistModel>();
-			foreach (string fileName in xmlFileNames)
-			{
-				string checklistId = DependencyService.Get<IParseChecklist>().GetChecklistId(fileName);
-				ChecklistModel model;
-				if (!database.ChecklistExists(checklistId))
-				{
-					model = ChecklistModel.Initialize(fileName);
-					newChecklists.Add(model);					
-				}
-				else
-				{
-					model = ChecklistHelper.LoadChecklistDetails(checklistId);
-				}
-				checklists.Add(model);
-			}
-			 * */
-
-			database.SaveChecklists(newChecklists);
 
 			FrontPage frontPage = new FrontPage(checklists);
 			

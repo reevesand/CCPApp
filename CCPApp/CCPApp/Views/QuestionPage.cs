@@ -13,6 +13,7 @@ namespace CCPApp.Views
 		public Question question;
 		Inspection inspection;
 		ScoredQuestion score;
+		Editor remarksBox;
 		Label existingAnswerLabel = new Label();
 		public QuestionPage(Question question, Inspection inspection, string textOverride = null, List<Reference> extraReferences = null)
 		{
@@ -35,7 +36,7 @@ namespace CCPApp.Views
 			{
 				Label PartLabel = new Label
 				{
-					Text = "Part "+question.part.Label,
+					Text = "Part "+question.part.Label+": "+question.part.Description,
 					HorizontalOptions = LayoutOptions.Center,
 				};
 				layout.Children.Add(PartLabel);
@@ -44,7 +45,7 @@ namespace CCPApp.Views
 			//Question number
 			Label questionNumberlabel = new Label
 			{
-				Text = "Question "+question.ToString(),
+				Text = "Question "+question.numberString,
 				HorizontalOptions = LayoutOptions.Center
 			};
 			layout.Children.Add(questionNumberlabel);
@@ -62,7 +63,7 @@ namespace CCPApp.Views
 			layout.Children.Add(questionTextLabel);
 
 			//Answer
-			score = App.database.LoadScoreForQuestion(inspection, question);
+			score = inspection.GetScoreForQuestion(question);
 			if (score != null) {
 				existingAnswerLabel.Text = "Answer: " + score.answer.ToString();
 			}
@@ -110,7 +111,34 @@ namespace CCPApp.Views
 			clearScoresButton.Clicked += clearScores;
 			layout.Children.Add(clearScoresButton);
 
-			Content = layout;
+			//Remarks label
+			Label remarksLabel = new Label();
+			remarksLabel.Text = "Remarks:";
+			layout.Children.Add(remarksLabel);
+			//Remarks box
+			remarksBox = new Editor();
+			remarksBox.Text = question.Remarks;
+			remarksBox.HeightRequest = 50;
+			question.OldRemarks = question.Remarks;
+			remarksBox.TextChanged += SaveRemarksText;
+			layout.Children.Add(remarksBox);
+
+			ScrollView scroll = new ScrollView();
+			scroll.Content = layout;
+
+			Content = scroll;
+		}
+		protected async void SaveRemarksText(object Sender, EventArgs e)
+		{
+			await Task.Run(() => question.Remarks = remarksBox.Text);
+		}
+		protected override void OnDisappearing()
+		{
+			if (question.Remarks != question.OldRemarks)
+			{
+				App.database.SaveQuestion(question);
+			}
+			base.OnDisappearing();
 		}
 
 		private void AnswerQuestion(object sender, EventArgs e)

@@ -49,6 +49,7 @@
     <Compile Include="Models\QuestionModel.cs" />
     <Compile Include="Models\ScoredQuestion.cs" />
     <Compile Include="Utilities\IValuesHelper.cs" />
+    <Compile Include="Utilities\ScoringHelper.cs" />
     <Compile Include="Views\ChecklistPage.cs" />
     <Compile Include="Views\CommentPage.cs" />
     <Compile Include="Views\DisputedPage.cs" />
@@ -64,6 +65,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Views\InspectorsPage.cs" />
     <Compile Include="Views\PdfPage.cs" />
+    <Compile Include="Views\PrepareReportPage.cs" />
     <Compile Include="Views\ReferencePage.cs" />
     <Compile Include="Views\QuestionPage.cs" />
     <Compile Include="Views\ReportPage.cs" />

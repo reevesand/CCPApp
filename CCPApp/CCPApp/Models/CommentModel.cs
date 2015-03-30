@@ -26,6 +26,10 @@ namespace CCPApp.Models
 		public string Subject { get; set; }
 		public string CommentText { get; set; }
 		public CommentType type { get; set; }
+
+		public string Discussion { get; set; }
+		public string Recommendation { get; set; }
+		public DateTime date { get; set; }
 	}
 
 	public enum CommentType

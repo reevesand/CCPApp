@@ -17,8 +17,13 @@ namespace CCPApp
 		void Initialize(Inspection inspection, bool ScoredOnly = false);
 
 		void NewPage();
+		void NewPageIfNotEmpty();
 		void CreateCommentPage(Comment comment);
 		void CreateQuestionSection(ReportSection section);
+		void CreateSectionTotals();
+		void CreateStructure();
+		void CreateScoreSheet();
+		void CreateScoreGraph();
 
 		void Finish();
 	}

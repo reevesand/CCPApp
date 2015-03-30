@@ -27,7 +27,8 @@ namespace CCPApp
 		//Originally comes from GetAllValidFiles, which returns the absolute paths of said files.
 		void MoveDirectoryToPrivate(string sourceDirectory, string destinationDirectory);
 		void DeleteFile(string fileName);
-		void CopyFileFromPrivateToPublic(string SourceName, string DestinationName);
+		void CopyFileFromTempToPublic(string SourceName, string DestinationName);
 		string GetLibraryFolder();
+		void DeleteTempFile(string fileName);
 	}
 }

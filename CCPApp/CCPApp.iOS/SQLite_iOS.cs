@@ -19,7 +19,7 @@ namespace CCPApp.iOS
 		{
 			var sqliteFilename = "ChecklistDatabase.db3";
 			string documentsPath = Environment.GetFolderPath(Environment.SpecialFolder.Personal); // Documents folder
-			string libraryPath = Path.Combine(documentsPath, "..", "Library"); // Library folder
+			string libraryPath = new FileManage().GetLibraryFolder();//Library folder.
 			var path = Path.Combine(libraryPath, sqliteFilename);
 			// Create the connection
 			var plat = new SQLite.Net.Platform.XamarinIOS.SQLitePlatformIOS();

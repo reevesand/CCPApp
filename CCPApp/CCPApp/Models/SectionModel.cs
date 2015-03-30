@@ -1,4 +1,5 @@
-﻿using SQLite.Net.Attributes;
+﻿using CCPApp.Utilities;
+using SQLite.Net.Attributes;
 using SQLiteNetExtensions.Attributes;
 using System;
 using System.Collections.Generic;
@@ -27,6 +28,10 @@ namespace CCPApp.Models
 		[OneToMany(CascadeOperations = CascadeOperation.All)]
 		public List<SectionPart> SectionParts { get; set; }
 		public string ScoringModel = "YesNo";
+		public double availablePoints;
+		public double earnedPoints;
+		public double percentage;
+		public Rating rating;
 
 		public SectionModel()
 		{
@@ -72,6 +77,10 @@ namespace CCPApp.Models
 		public string Label { get; set; }
 		public string Description { get; set; }
 		public string ScoringModel = "YesNo";
+		public double availablePoints;
+		public double earnedPoints;
+		public double percentage;
+		public Rating rating;
 
 		public SectionPart()
 		{

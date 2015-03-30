@@ -9,5 +9,6 @@ namespace CCPApp.Utilities
 	public interface IValuesHelper
 	{
 		string exportInstructions();
+		string deleteChecklistWarning(string title);
 	}
 }

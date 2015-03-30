@@ -60,7 +60,7 @@ namespace CCPApp.Views
 		{
 			BoundMenuItem<Inspector> item = (BoundMenuItem<Inspector>)sender;
 			Inspector inspector = item.BoundObject;
-			App.database.deleteInspector(inspector);
+			Inspector.DeleteInspector(inspector);
 			ResetInspectors();
 		}
 		public async void openEditInspectorPage(object sender, EventArgs e)
@@ -100,7 +100,6 @@ namespace CCPApp.Views
 			{
 				BindingContext = inspector,
 				Label = "Inspector Name:",
-				Text = inspector.Name,
 			};
 			NameCell.SetBinding(EntryCell.TextProperty, "Name");
 			ViewCell SaveCell = new ViewCell();

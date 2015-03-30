@@ -22,15 +22,45 @@ namespace CCPApp.Models
 		{
 			return Name;
 		}
+		public override bool Equals(object obj)
+		{
+			if (obj.GetType() != typeof(Inspector))
+			{
+				return false;
+			}
+			else
+			{
+				return (Id == ((Inspector)obj).Id && Id != null);
+			}
+		}
+		public override int GetHashCode()
+		{
+			return Id.GetHashCode();
+		}
 		public Inspector()
 		{
 			inspections = new List<Inspection>();
+		}
+
+		public static void DeleteInspector(Inspector inspector)
+		{
+			foreach (Inspection inspection in inspector.inspections)
+			{
+				if (inspection.inspectors.Contains(inspector))
+				{
+					inspection.inspectors.Remove(inspector);
+				}
+			}
+			App.database.DeleteInspector(inspector);
 		}
 	}
 
 
 	public class InspectorInspections
 	{
+		[PrimaryKey, AutoIncrement]
+		public int? Id { get; set; }
+
 		[ForeignKey(typeof(Inspector))]
 		public int? InspectorId { get; set; }
 

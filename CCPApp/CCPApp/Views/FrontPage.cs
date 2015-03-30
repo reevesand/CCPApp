@@ -1,22 +1,62 @@
-﻿using CCPApp.Models;
+﻿using CCPApp.Items;
+using CCPApp.Models;
+using CCPApp.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection.Emit;
 using System.Text;
+using System.Threading.Tasks;
 using Xamarin.Forms;
 
 namespace CCPApp.Views
 {
 	public class FrontPage : ContentPage
 	{
+		TableSection checklistSection;
 		public List<ChecklistModel> checklists { get; set; }
 		public FrontPage(List<ChecklistModel> inputChecklists)
 		{
 			this.checklists = inputChecklists;
+			ToolbarItem inspectorButton = new ToolbarItem();
+			inspectorButton.Text = "Inspectors";
+			inspectorButton.Clicked += openInspectorsPage;
+			ToolbarItems.Add(inspectorButton);
+
+			ResetChecklists();
+
+			Padding = new Thickness(10, Device.OnPlatform(20, 0, 0), 10, 5);
+			Title = "Select a checklist";
+		}
+		protected override void OnAppearing()
+		{
+			IEnumerable<string> zipFileNames = DependencyService.Get<IFileManage>().GetAllValidFiles();
+			if (zipFileNames.Any())
+			{
+				List<ChecklistModel> newChecklists = new List<ChecklistModel>();
+				foreach (string zipName in zipFileNames)
+				{
+					string unzippedDirectory = DependencyService.Get<IUnzipHelper>().Unzip(zipName);
+					string xmlFile = DependencyService.Get<IFileManage>().GetXmlFile(unzippedDirectory);
+					string checklistId = DependencyService.Get<IParseChecklist>().GetChecklistId(xmlFile);
+					ChecklistModel model = ChecklistModel.Initialize(xmlFile);
+					//move the files to a new folder.
+					DependencyService.Get<IFileManage>().MoveDirectoryToPrivate(unzippedDirectory, checklistId);
+					//Delete the zip file once we're done with it.
+					DependencyService.Get<IFileManage>().DeleteFile(zipName);
+					newChecklists.Add(model);
+					checklists.Add(model);
+				}
+				App.database.SaveChecklists(newChecklists);
+				ResetChecklists();
+			}
+			base.OnAppearing();
+		}
+		internal void ResetChecklists()
+		{
 			TableView checklistsView = new TableView();
 			TableRoot root = new TableRoot("Select a Checklist");
-			TableSection checklistSection = new TableSection();
+			TableSection tempChecklistSection = new TableSection();
 			//TableSection inspectorSection = new TableSection();
 			List<ViewCell> cells = new List<ViewCell>();
 
@@ -31,25 +71,25 @@ namespace CCPApp.Views
 				{
 					View = button
 				};
+
+				BoundMenuItem<ChecklistModel> Delete = new BoundMenuItem<ChecklistModel> { Text = "Delete", BoundObject = checklist, IsDestructive = true };
+				Delete.Clicked += DeleteChecklist;
+				cell.ContextActions.Add(Delete);
+
 				cells.Add(cell);
 			}
-			ToolbarItem inspectorButton = new ToolbarItem();
-			inspectorButton.Text = "Inspectors";
-			inspectorButton.Clicked += openInspectorsPage;
-			ToolbarItems.Add(inspectorButton);
 
 			//Button inspectorsButton = new Button();
 			//inspectorSection.Title = "Inspectors";
 			//inspectorsButton.Clicked += openInspectorsPage;
 
-			checklistSection.Add(cells);
-			root.Add(checklistSection);
+			tempChecklistSection.Add(cells);
+			root.Add(tempChecklistSection);
+			checklistSection = tempChecklistSection;
 			//root.Add(inspectorSection);
 			checklistsView.Root = root;
 
 			Content = checklistsView;
-			Padding = new Thickness(10, Device.OnPlatform(20, 0, 0), 10, 5);
-			Title = "Select a checklist";
 		}
 
 		public async void openInspectorsPage(object sender, EventArgs e)
@@ -57,6 +97,20 @@ namespace CCPApp.Views
 			ToolbarItem button = (ToolbarItem)sender;
 			InspectorsPage page = new InspectorsPage();
 			await App.Navigation.PushAsync(page);
+		}
+
+		public async void DeleteChecklist(object sender, EventArgs e)
+		{
+			BoundMenuItem<ChecklistModel> button = (BoundMenuItem<ChecklistModel>)sender;
+			ChecklistModel checklist = button.BoundObject;
+			bool answer = await DisplayAlert("Confirm Deletion", DependencyService.Get<IValuesHelper>().deleteChecklistWarning(checklist.Title), "Yes", "No");
+			if (!answer)
+			{
+				return;
+			}
+			ChecklistModel.DeleteChecklist(checklist);
+			checklists.Remove(checklist);
+			ResetChecklists();
 		}
 	}
 }

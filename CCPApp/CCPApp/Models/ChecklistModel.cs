@@ -79,6 +79,14 @@ namespace CCPApp.Models
 			DependencyService.Get<IParseChecklist>().Parse(model, configFileName);
 			return model;
 		}
+		public static void DeleteChecklist(ChecklistModel checklist)
+		{
+			foreach (Inspection inspection in checklist.Inspections)
+			{
+				Inspection.DeleteInspection(inspection);
+			}
+			App.database.DeleteChecklist(checklist);
+		}
 	}
 
 	public class Threshold

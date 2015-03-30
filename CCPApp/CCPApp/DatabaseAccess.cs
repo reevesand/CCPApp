@@ -60,7 +60,10 @@ namespace CCPApp
 		{
 			return database.Table<ChecklistModel>().Any(c => c.Id == id);
 		}
-
+		public async void SaveQuestion(Question question)
+		{
+			await Task.Run(() => database.Update(question));
+		}
 		public async void SaveChecklists(List<ChecklistModel> checklists)
 		{
 			//ExecutingAsyncTask = true;
@@ -112,7 +115,7 @@ namespace CCPApp
 			{
 				lock (dbSync)
 				{
-					database.Insert(inspection, typeof(Inspection));
+					database.InsertOrReplace(inspection, typeof(Inspection));
 					foreach (ScoredQuestion score in inspection.scores)
 					{
 						score.InspectionId = inspection.Id;
@@ -202,16 +205,40 @@ namespace CCPApp
 				database.InsertOrReplace(link);
 			}
 		}
-		public void deleteInspector(Inspector inspector)
+		public void DeleteComment(Comment comment)
+		{
+			database.Delete(comment);
+		}
+		public void DeleteInspector(Inspector inspector)
 		{
 			database.Delete(inspector);
+			List<InspectorInspections> linksToDelete = new List<InspectorInspections>();
 			foreach (Inspection inspection in inspector.inspections)
 			{
-				InspectorInspections link = new InspectorInspections();
-				link.InspectorId = inspector.Id;
-				link.InspectionId = inspection.Id;
-				database.Delete(link);
+				linksToDelete.AddRange(database.Table<InspectorInspections>()
+						.Where(link => link.InspectionId == inspection.Id && link.InspectorId == inspector.Id));
 			}
+			database.DeleteAll(linksToDelete);
+		}
+		public void DeleteInspection(Inspection inspection)
+		{
+			database.DeleteAll(inspection.scores);
+			database.DeleteAll(inspection.comments);
+
+			List<InspectorInspections> linksToDelete = new List<InspectorInspections>();
+			foreach (Inspector inspector in inspection.inspectors)
+			{
+				linksToDelete.AddRange(database.Table<InspectorInspections>()
+						.Where(link => link.InspectionId == inspection.Id && link.InspectorId == inspector.Id));
+			}
+			database.DeleteAll(linksToDelete);
+
+			database.Delete(inspection);
+		}
+		public void DeleteChecklist(ChecklistModel checklist)
+		{
+			database.DeleteAll(checklist.GetAllQuestions());
+			database.Delete(checklist);
 		}
 	}
 }

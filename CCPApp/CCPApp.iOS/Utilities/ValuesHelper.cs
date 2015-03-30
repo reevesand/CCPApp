@@ -19,5 +19,11 @@ namespace CCPApp.iOS.Utilities
 			return "Please input the name you would like to give to the exported file in the box below.  " +
 				"This file will be available to tranfer to a computer when you connect via iTunes";
 		}
+
+		public string deleteChecklistWarning(string title)
+		{
+			return "Are you sure you want to delete " + title + "?  All its data and inspections will be lost.  The only way to restore the checklist " +
+				"will be to add it through iTunes again.";
+		}
 	}
 }

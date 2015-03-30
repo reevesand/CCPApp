@@ -33,12 +33,31 @@ namespace CCPApp.Models
 		public string Text { get; set; }
 		public string PrintedText { get; set; }
 		public string OldText { get; set; }
+		public string Remarks { get; set; }
+		public string OldRemarks;
+
 		[OneToMany(CascadeOperations = CascadeOperation.All)]
 		public List<Reference> References { get; set; }
 
 		public override string ToString()
 		{
-			return Number.ToString() + Subqualifier;
+			string prefix;
+			if (part != null)
+			{
+				prefix = part.Label;
+			}
+			else
+			{
+				prefix = section.Label;
+			}
+			return prefix + "-" + numberString;
+		}
+		public string numberString
+		{
+			get
+			{
+				return Number.ToString() + Subqualifier;
+			}
 		}
 		public bool IsScorable()
 		{
