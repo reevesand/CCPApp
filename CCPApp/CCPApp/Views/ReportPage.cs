@@ -79,7 +79,8 @@ namespace CCPApp.Views
 			bool anyUnacceptables = false;
 			foreach (SectionModel section in inspection.Checklist.Sections)
 			{
-				bool anyUnacceptableParts = false;
+				//We can have a commendable section even with unacceptable parts.
+				//bool anyUnacceptableParts = false;
 				if (section.SectionParts.Any())
 				{
 					double sumSectionAvailablePoints = 0;
@@ -96,7 +97,7 @@ namespace CCPApp.Views
 							if (percentScore < inspection.Checklist.ScoreThresholdSatisfactory)
 							{
 								part.rating = Rating.Unacceptable;
-								anyUnacceptableParts = true;
+								//anyUnacceptableParts = true;
 							}
 							else if (percentScore < inspection.Checklist.ScoreThresholdCommendable)
 							{
@@ -137,7 +138,7 @@ namespace CCPApp.Views
 						anyUnacceptables = true;
 						section.rating = Rating.Unacceptable;
 					}
-					else if (percentScore < inspection.Checklist.ScoreThresholdCommendable || anyUnacceptableParts)
+					else if (percentScore < inspection.Checklist.ScoreThresholdCommendable /*|| anyUnacceptableParts*/)
 					{ section.rating = Rating.Satisfactory; }
 					else
 					{ section.rating = Rating.Commendable; }
@@ -233,7 +234,7 @@ namespace CCPApp.Views
 				destinationFile += ".pdf";
 			}
 			DependencyService.Get<IFileManage>().CopyFileFromTempToPublic(filename, destinationFile);
-			DependencyService.Get<IFileManage>().DeleteTempFile(filename);
+			//DependencyService.Get<IFileManage>().DeleteTempFile(filename);
 
 			await App.Navigation.PopModalAsync();
 		}

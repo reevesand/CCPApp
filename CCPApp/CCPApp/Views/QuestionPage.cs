@@ -115,6 +115,7 @@ namespace CCPApp.Views
 			Label remarksLabel = new Label();
 			remarksLabel.Text = "Remarks:";
 			layout.Children.Add(remarksLabel);
+
 			//Remarks box
 			remarksBox = new Editor();
 			remarksBox.Text = question.Remarks;

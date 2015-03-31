@@ -24,6 +24,7 @@ namespace CCPApp.Models
 		public List<ScoredQuestion> scores { get; set; }
 
 		public string Name { get; set; }
+		public string Organization { get; set; }
 
 		[OneToMany(CascadeOperations = CascadeOperation.All)]
 		public List<Comment> comments { get; set; }

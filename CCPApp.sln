@@ -30,6 +30,7 @@ Global
 		{2887812C-D550-417A-9848-2A4177A9D003}.Ad-Hoc|Any CPU.ActiveCfg = Release|Any CPU
 		{2887812C-D550-417A-9848-2A4177A9D003}.Ad-Hoc|Any CPU.Build.0 = Release|Any CPU
 		{2887812C-D550-417A-9848-2A4177A9D003}.Ad-Hoc|iPhone.ActiveCfg = Release|Any CPU
+		{2887812C-D550-417A-9848-2A4177A9D003}.Ad-Hoc|iPhone.Build.0 = Release|Any CPU
 		{2887812C-D550-417A-9848-2A4177A9D003}.Ad-Hoc|iPhoneSimulator.ActiveCfg = Release|Any CPU
 		{2887812C-D550-417A-9848-2A4177A9D003}.Ad-Hoc|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{2887812C-D550-417A-9848-2A4177A9D003}.Ad-Hoc|Mixed Platforms.Build.0 = Release|Any CPU

@@ -18,6 +18,7 @@ namespace CCPApp.Views
 			inspectionPage = page;
 			List<ScoredQuestion> disputedQuestions = inspection.scores.Where(s => s.answer == Answer.Disputed).ToList();
 			TableView table = new TableView();
+			table.Intent = TableIntent.Settings;
 			TableSection section = new TableSection();
 
 			foreach (ScoredQuestion score in disputedQuestions)

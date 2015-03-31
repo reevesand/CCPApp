@@ -24,8 +24,6 @@ namespace CCPApp.Views
 			ToolbarItems.Add(inspectorButton);
 
 			ResetChecklists();
-
-			Padding = new Thickness(10, Device.OnPlatform(20, 0, 0), 10, 5);
 			Title = "Select a checklist";
 		}
 		protected override void OnAppearing()
@@ -54,6 +52,13 @@ namespace CCPApp.Views
 		}
 		internal void ResetChecklists()
 		{
+			ActivityIndicator indicator = new ActivityIndicator()
+			{
+				IsEnabled = true,
+				IsRunning = true,
+				IsVisible = true,
+				Color = Color.Red,
+			};
 			TableView checklistsView = new TableView();
 			TableRoot root = new TableRoot("Select a Checklist");
 			TableSection tempChecklistSection = new TableSection();
@@ -66,10 +71,11 @@ namespace CCPApp.Views
 				button.Clicked += ChecklistHelper.ChecklistButtonClicked;
 				button.Text = checklist.Title;
 				button.checklist = checklist;
+				button.HorizontalOptions = LayoutOptions.Start;
 
 				ViewCell cell = new ViewCell
 				{
-					View = button
+					View = button,
 				};
 
 				BoundMenuItem<ChecklistModel> Delete = new BoundMenuItem<ChecklistModel> { Text = "Delete", BoundObject = checklist, IsDestructive = true };
@@ -78,15 +84,9 @@ namespace CCPApp.Views
 
 				cells.Add(cell);
 			}
-
-			//Button inspectorsButton = new Button();
-			//inspectorSection.Title = "Inspectors";
-			//inspectorsButton.Clicked += openInspectorsPage;
-
 			tempChecklistSection.Add(cells);
 			root.Add(tempChecklistSection);
 			checklistSection = tempChecklistSection;
-			//root.Add(inspectorSection);
 			checklistsView.Root = root;
 
 			Content = checklistsView;

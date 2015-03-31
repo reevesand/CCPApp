@@ -85,7 +85,6 @@ namespace CCPApp
 	{
 		public TableSection tableSection { get; set; }
 		public Inspection inspection { get; set; }
-		private EntryCell NameCell { get; set; }
 		public ChecklistPage CallingPage { get; set; }
 		public GenericPicker<Inspector> inspectorPicker { get; set; }
 		public EditInspectionPage(Inspection existingInspection = null, ChecklistModel checklist = null)
@@ -106,12 +105,19 @@ namespace CCPApp
 			TableRoot root = new TableRoot("Edit Inspection");
 			TableSection section = new TableSection();
 			Padding = new Thickness(0, Device.OnPlatform(20, 0, 0), 0, 0);
-			NameCell = new EntryCell
+			EntryCell NameCell = new EntryCell
 			{
 				BindingContext = inspection,
 				Label = "Inspection Name:",
 			};
 			NameCell.SetBinding(EntryCell.TextProperty, "Name");
+
+			EntryCell OrganizationCell = new EntryCell
+			{
+				BindingContext = inspection,
+				Label = "Organization:",
+			};
+			OrganizationCell.SetBinding(EntryCell.TextProperty,"Organization");
 
 			inspectorPicker = new GenericPicker<Inspector>();
 			List<Inspector> allInspectors = App.database.LoadAllInspectors();
@@ -141,6 +147,7 @@ namespace CCPApp
 			CancelCell.View = cancelButton;
 
 			section.Add(NameCell);
+			section.Add(OrganizationCell);
 			section.Add(inspectorCell);
 			section.Add(SaveCell);
 			section.Add(CancelCell);
@@ -152,7 +159,7 @@ namespace CCPApp
 		public async void SaveInspectionClicked(object sender, EventArgs e)
 		{
 			ChecklistModel checklist = inspection.Checklist;
-			inspection.Name = NameCell.Text;
+			//inspection.Name = NameCell.Text;
 			inspection.ChecklistId = checklist.Id;
 			if (!checklist.Inspections.Contains(inspection))
 			{

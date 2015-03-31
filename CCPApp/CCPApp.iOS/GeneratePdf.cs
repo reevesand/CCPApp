@@ -54,13 +54,17 @@ namespace CCPApp.iOS
 			cb = writer.DirectContent;
 
 			fonts["TNR12Bold"] = new Font(Font.TIMES_ROMAN, 12, Font.BOLD);
+			fonts["TNR12BoldUnderline"] = new Font(Font.TIMES_ROMAN,12,Font.UNDERLINE | Font.BOLD);
 			fonts["TNR12"] = new Font(Font.TIMES_ROMAN, 12);
 			fonts["TNR10"] = new Font(Font.TIMES_ROMAN, 10);
 			fonts["TNR10Bold"] = new Font(Font.TIMES_ROMAN, 10, Font.BOLD);
 			fonts["TNR9"] = new Font(Font.TIMES_ROMAN, 9);
 			fonts["TNR9Blue"] = new Font(Font.TIMES_ROMAN, 9, Font.NORMAL,iTextSharp.text.Color.BLUE);
 			fonts["TNR1"] = new Font(Font.TIMES_ROMAN, 1);
+			fonts["TNR11"] = new Font(Font.TIMES_ROMAN, 11);
+			fonts["TNR11Bold"] = new Font(Font.TIMES_ROMAN, 11, Font.BOLD);
 			fonts["TNR11BoldItalic"] = new Font(Font.TIMES_ROMAN, 11, Font.BOLDITALIC);
+			fonts["TNR16Bold"] = new Font(Font.TIMES_ROMAN, 16, Font.BOLD);
 
 		}
 		public void NewPage()
@@ -113,7 +117,7 @@ namespace CCPApp.iOS
 			Font boldTimes = fonts["TNR12Bold"];
 
 			Chunk inspectionName = new Chunk(inspection.Name + "\n",boldTimes);
-			Chunk orgName = new Chunk("Organization\n\n",boldTimes);
+			Chunk orgName = new Chunk(inspection.Organization+"\n\n",boldTimes);
 			Chunk dateLabel = new Chunk("Inspection Date:     ",fonts["TNR10Bold"]);
 			Chunk date = new Chunk(DateTime.Now.ToString("MMMM d, yyyy"),fonts["TNR10"]);
 
@@ -491,33 +495,33 @@ namespace CCPApp.iOS
 			table.SpacingBefore = 20;
 			List<PdfPCell> headerCells = new List<PdfPCell>();
 
-			PdfPCell topCell = new PdfPCell(new Phrase("Section Scores"));
+			PdfPCell topCell = new PdfPCell(new Phrase("Section Scores", fonts["TNR16Bold"]));
 			topCell.Colspan = 8;
 			PdfPCell emptyCell1 = new PdfPCell();
 			emptyCell1.Colspan = 8;
 			emptyCell1.MinimumHeight = 5;
 
-			PdfPCell headerTitleCell = new PdfPCell(new Phrase("Section Title"));
+			PdfPCell headerTitleCell = new PdfPCell(new Phrase("Section Title",fonts["TNR12Bold"]));
 			headerTitleCell.Colspan = 2;
 			headerTitleCell.DisableBorderSide(Rectangle.RIGHT_BORDER);
 			headerCells.Add(headerTitleCell);
 
-			PdfPCell headerAvailableCell = new PdfPCell(new Phrase("Available Points"));
+			PdfPCell headerAvailableCell = new PdfPCell(new Phrase("Available Points", fonts["TNR12Bold"]));
 			headerAvailableCell.DisableBorderSide(Rectangle.RIGHT_BORDER);
 			headerAvailableCell.DisableBorderSide(Rectangle.LEFT_BORDER);
 			headerCells.Add(headerAvailableCell);
 
-			PdfPCell headerEarnedCell = new PdfPCell(new Phrase("Earned Points"));
+			PdfPCell headerEarnedCell = new PdfPCell(new Phrase("Earned Points", fonts["TNR12Bold"]));
 			headerEarnedCell.DisableBorderSide(Rectangle.RIGHT_BORDER);
 			headerEarnedCell.DisableBorderSide(Rectangle.LEFT_BORDER);
 			headerCells.Add(headerEarnedCell);
 
-			PdfPCell headerScoreCell = new PdfPCell(new Phrase("Score (%)"));
+			PdfPCell headerScoreCell = new PdfPCell(new Phrase("Score (%)", fonts["TNR12Bold"]));
 			headerScoreCell.DisableBorderSide(Rectangle.RIGHT_BORDER);
 			headerScoreCell.DisableBorderSide(Rectangle.LEFT_BORDER);
 			headerCells.Add(headerScoreCell);
 
-			PdfPCell headerRatingsCell = new PdfPCell(new Phrase("Section Ratings"));
+			PdfPCell headerRatingsCell = new PdfPCell(new Phrase("Section Ratings", fonts["TNR12Bold"]));
 			headerRatingsCell.Colspan = 3;
 			headerRatingsCell.DisableBorderSide(Rectangle.LEFT_BORDER);
 			headerCells.Add(headerRatingsCell);
@@ -549,12 +553,12 @@ namespace CCPApp.iOS
 			headerCells.Add(headerAvailableCell);
 			headerCells.Add(headerEarnedCell);
 
-			PdfPCell headerTotalCell = new PdfPCell(new Phrase("Total Score"));
+			PdfPCell headerTotalCell = new PdfPCell(new Phrase("Total Score", fonts["TNR12Bold"]));
 			headerTotalCell.DisableBorderSide(Rectangle.LEFT_BORDER);
 			headerTotalCell.DisableBorderSide(Rectangle.RIGHT_BORDER);
 			headerCells.Add(headerTotalCell);
 
-			PdfPCell headerOverallCell = new PdfPCell(new Phrase("Overall Rating"));
+			PdfPCell headerOverallCell = new PdfPCell(new Phrase("Overall Rating", fonts["TNR12Bold"]));
 			headerOverallCell.DisableBorderSide(Rectangle.LEFT_BORDER);
 			headerOverallCell.Colspan = 3;
 			headerCells.Add(headerOverallCell);
@@ -566,16 +570,16 @@ namespace CCPApp.iOS
 				table.AddCell(cell);
 			}
 
-			PdfPCell cumulativeCell = new PdfPCell(new Phrase("Cumulative Score"));
+			PdfPCell cumulativeCell = new PdfPCell(new Phrase("Cumulative Score", fonts["TNR11Bold"]));
 			cumulativeCell.Colspan = 2;
 			cumulativeCell.DisableBorderSide(Rectangle.RIGHT_BORDER);
 
-			PdfPCell availableCell = new PdfPCell(new Phrase(inspection.availablePoints.ToString()));
+			PdfPCell availableCell = new PdfPCell(new Phrase(inspection.availablePoints.ToString(), fonts["TNR11"]));
 			availableCell.DisableBorderSide(Rectangle.LEFT_BORDER);
 			availableCell.DisableBorderSide(Rectangle.RIGHT_BORDER);
 			availableCell.HorizontalAlignment = PdfPCell.ALIGN_CENTER;
 
-			PdfPCell earnedCell = new PdfPCell(new Phrase(inspection.earnedPoints.ToString()));
+			PdfPCell earnedCell = new PdfPCell(new Phrase(inspection.earnedPoints.ToString(), fonts["TNR11"]));
 			earnedCell.DisableBorderSide(Rectangle.LEFT_BORDER);
 			earnedCell.DisableBorderSide(Rectangle.RIGHT_BORDER);
 			earnedCell.HorizontalAlignment = PdfPCell.ALIGN_CENTER;
@@ -583,7 +587,7 @@ namespace CCPApp.iOS
 			PdfPCell scoreCell;
 			if (inspection.availablePoints == 0)
 			{
-				scoreCell = new PdfPCell(new Phrase("N/A"));
+				scoreCell = new PdfPCell(new Phrase("N/A",fonts["TNR11"]));
 			}
 			else
 			{
@@ -612,24 +616,23 @@ namespace CCPApp.iOS
 		internal void AddSectionScoreRow(SectionModel section, PdfPTable table)
 		{
 			List<PdfPCell> sectionCells = new List<PdfPCell>();
-			PdfPCell labelCell = new PdfPCell(new Phrase(section.Label));
+			PdfPCell labelCell = new PdfPCell(new Phrase(section.Label,fonts["TNR11Bold"]));
 			labelCell.DisableBorderSide(Rectangle.RIGHT_BORDER);
 			labelCell.HorizontalAlignment = PdfPCell.ALIGN_RIGHT;
 			sectionCells.Add(labelCell);
 
-			PdfPCell titleCell = new PdfPCell(new Phrase(section.Title));
+			PdfPCell titleCell = new PdfPCell(new Phrase(section.Title,fonts["TNR11Bold"]));
 			titleCell.DisableBorderSide(Rectangle.RIGHT_BORDER);
 			titleCell.DisableBorderSide(Rectangle.LEFT_BORDER);
 			sectionCells.Add(titleCell);
 
-			//TODO scoring
-			PdfPCell availableCell = new PdfPCell(new Phrase(section.availablePoints.ToString()));
+			PdfPCell availableCell = new PdfPCell(new Phrase(section.availablePoints.ToString(),fonts["TNR11"]));
 			availableCell.DisableBorderSide(Rectangle.RIGHT_BORDER);
 			availableCell.DisableBorderSide(Rectangle.LEFT_BORDER);
 			availableCell.HorizontalAlignment = PdfPCell.ALIGN_CENTER;
 			sectionCells.Add(availableCell);
 
-			PdfPCell earnedCell = new PdfPCell(new Phrase(section.earnedPoints.ToString()));
+			PdfPCell earnedCell = new PdfPCell(new Phrase(section.earnedPoints.ToString(), fonts["TNR11"]));
 			earnedCell.DisableBorderSide(Rectangle.RIGHT_BORDER);
 			earnedCell.DisableBorderSide(Rectangle.LEFT_BORDER);
 			earnedCell.HorizontalAlignment = PdfPCell.ALIGN_CENTER;
@@ -638,11 +641,11 @@ namespace CCPApp.iOS
 			PdfPCell scoreCell;
 			if (section.availablePoints == 0)
 			{
-				scoreCell = new PdfPCell(new Phrase("N/A"));
+				scoreCell = new PdfPCell(new Phrase("N/A", fonts["TNR11"]));
 			}
 			else
 			{
-				scoreCell = new PdfPCell(new Phrase(PercentString(section.percentage)));
+				scoreCell = new PdfPCell(new Phrase(PercentString(section.percentage), fonts["TNR11"]));
 			}	
 			scoreCell.DisableBorderSide(Rectangle.RIGHT_BORDER);
 			scoreCell.DisableBorderSide(Rectangle.LEFT_BORDER);
@@ -669,7 +672,7 @@ namespace CCPApp.iOS
 		{
 			isEmpty = false;
 			AddPageHeader();
-			Paragraph title = new Paragraph("Checklist Structure");
+			Paragraph title = new Paragraph("Checklist Structure",fonts["TNR11Bold"]);
 			title.IndentationLeft = 30;
 			it.List list = new it.List();
 			list.SetListSymbol(string.Empty);
@@ -905,7 +908,89 @@ namespace CCPApp.iOS
 		{
 			isEmpty = false;
 			AddPageHeader();
-			doc.Add(new Paragraph("Score graph.  Looks pretty.  Colors and whatnot."));
+			float graphBottom = 504;
+			float graphTop = 670.5F;
+			float graphLeft = 94.5F;
+			float graphRight = 549;
+
+			float graphHeight = graphTop - graphBottom;
+			float oneFifth = graphHeight / 5F;
+			float sectionWidth = (graphRight - graphLeft) / (float)inspection.Checklist.Sections.Count;
+			float sectionQuarter = sectionWidth / 4;
+
+			cb.Rectangle(36, 369, 531, 333);
+			cb.Stroke();
+
+			cb.MoveTo(graphLeft, graphBottom);
+			cb.LineTo(graphRight, graphBottom);
+			cb.Stroke();
+
+			cb.MoveTo(graphLeft, graphBottom);
+			cb.LineTo(graphLeft, graphTop);
+			cb.Stroke();
+
+			cb.SetLineWidth(.2F);
+			cb.MoveTo(graphRight, graphBottom);
+			cb.LineTo(graphRight, graphTop);
+			cb.Stroke();
+
+			BaseFont baseFont = BaseFont.CreateFont(BaseFont.HELVETICA, BaseFont.CP1252, false);
+			BaseFont boldFont = BaseFont.CreateFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1252, false);
+			cb.SetFontAndSize(baseFont, 7);
+			cb.BeginText();
+			cb.ShowTextAligned(it.Element.ALIGN_RIGHT, "0", graphLeft - 2, graphBottom - 2, 0);
+			cb.EndText();
+
+			for (int i = 1; i <= 5; i++)
+			{
+				float lineY = graphBottom + i * oneFifth;
+				cb.MoveTo(graphLeft, lineY);
+				cb.LineTo(graphRight, lineY);
+				cb.Stroke();
+
+				cb.BeginText();
+				cb.ShowTextAligned(it.Element.ALIGN_RIGHT, (20 * (i)).ToString(), graphLeft - 2, lineY - 2, 0);
+				cb.EndText();
+			}
+
+			it.Color[] colorOptions = new it.Color[8];
+			colorOptions[0] = it.Color.BLUE;
+			colorOptions[1] = it.Color.RED;
+			colorOptions[2] = it.Color.GREEN;
+			colorOptions[3] = it.Color.ORANGE;
+			colorOptions[4] = it.Color.YELLOW;
+			colorOptions[5] = it.Color.MAGENTA;
+			colorOptions[6] = it.Color.CYAN;
+			colorOptions[7] = it.Color.PINK;
+			for (int i = 0, colorIndex = 0; i < inspection.Checklist.Sections.Count; i++, colorIndex %= colorOptions.Length)
+			{
+				SectionModel section = inspection.Checklist.Sections.ElementAt(i);
+				float score = (float)section.percentage;
+				float left = graphLeft + sectionWidth * i + sectionQuarter;
+
+				StringBuilder XLabel = new StringBuilder(section.Label + " : " + section.Title);
+				cb.BeginText();
+				cb.ShowTextAligned(it.Element.ALIGN_RIGHT, XLabel.ToString(), left + sectionQuarter, graphBottom - 5, 37);
+				cb.EndText();
+
+				if (score <= 0)
+				{
+					continue;
+				}
+				float height = graphHeight * score;
+
+				cb.SetColorFill(colorOptions[colorIndex]);
+				cb.Rectangle(left, graphBottom + .2F, sectionQuarter * 2, height);
+				cb.Fill();
+				colorIndex++;
+
+				cb.ResetRGBColorFill();
+			}
+			cb.SetFontAndSize(boldFont, 8);
+			cb.BeginText();
+			cb.ShowTextAligned(it.Element.ALIGN_CENTER, "Score Range (%)", graphLeft - 20, graphBottom + (graphHeight / 2), 90);
+			cb.ShowTextAligned(it.Element.ALIGN_CENTER, "Sections", (graphLeft + graphRight) / 2F, graphBottom - 80, 0);
+			cb.EndText();
 			AddPageFooter();
 		}
 

@@ -16,13 +16,13 @@ namespace CCPApp.Views
 		public ChecklistPage(ChecklistModel checklist)
 		{
 			Title = checklist.Title;
-			Padding = 20;
 			this.checklist = checklist;
 			ResetInspections();
 		}
 		public void ResetInspections()
 		{
 			TableView view = new TableView();
+			view.Intent = TableIntent.Menu;
 			TableRoot root = new TableRoot("Inspections for " + Title);
 			TableSection section = new TableSection();
 			List<ViewCell> cells = new List<ViewCell>();
