@@ -37,11 +37,14 @@
   <ItemGroup>
     <Compile Include="App.cs" />
     <Compile Include="ChecklistHelper.cs" />
+    <Compile Include="IExportInspection.cs" />
     <Compile Include="IGeneratePdf.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="InspectionHelper.cs" />
     <Compile Include="Models\InspectorModel.cs" />
+    <Compile Include="Models\ReportOptionsModel.cs" />
+    <Compile Include="Utilities\BothSidesLayout.cs" />
     <Compile Include="Utilities\BoundMenuItem.cs" />
     <Compile Include="Utilities\GenericPicker.cs" />
     <Compile Include="Utilities\IUnzipHelper.cs" />

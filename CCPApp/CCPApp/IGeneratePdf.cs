@@ -14,7 +14,7 @@ namespace CCPApp
 	/// </summary>
 	public interface IGeneratePdf
 	{
-		void Initialize(Inspection inspection, bool ScoredOnly = false);
+		string Initialize(Inspection inspection, bool ScoredOnly = false);
 
 		void NewPage();
 		void NewPageIfNotEmpty();
@@ -25,6 +25,7 @@ namespace CCPApp
 		void CreateScoreSheet();
 		void CreateScoreGraph();
 
+		void StampFooter(int pagesToSkip);
 		void Finish();
 	}
 }

@@ -32,6 +32,18 @@ namespace CCPApp.Models
 		[ManyToMany(typeof(InspectorInspections),CascadeOperations=CascadeOperation.All)]
 		public List<Inspector> inspectors { get; set; }
 
+		[ForeignKey(typeof(Question))]
+		public int? LastViewedQuestionId { get; set; }
+		[ManyToOne(CascadeOperations = CascadeOperation.All)]
+		public Question LastViewedQuestion{ get; set; }
+		public Question GetLastViewedQuestion() { return LastViewedQuestion; }
+		public void SetLastViewedQuestion(Question question)
+		{
+			LastViewedQuestion = question;
+			LastViewedQuestionId = question.Id;
+			App.database.MinorUpdateInspection(this);
+		}
+
 		public double availablePoints;
 		public double earnedPoints;
 		public double percentage;

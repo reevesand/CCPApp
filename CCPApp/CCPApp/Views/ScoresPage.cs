@@ -65,14 +65,14 @@ namespace CCPApp.Views
 			layout.Children.Add(sectionScoreLabel);
 			layout.Children.Add(partPicker);
 			layout.Children.Add(partScoreLabel);
-			double cummulativeScore = ScoringHelper.ScoreInspection(inspection).Item3;
-			Label cummulativeScoreLabel = new Label
+			double cumulativeScore = ScoringHelper.ScoreInspection(inspection).Item3;
+			Label cumulativeScoreLabel = new Label
 			{
-				Text = "Cummulative Score: " + (cummulativeScore * 100).ToString("0.00") + "%",
+				Text = "Cumulative Score: " + (cumulativeScore * 100).ToString("0.00") + "%",
 				TextColor = Color.White
 			};
-			setScoresColor(cummulativeScore, cummulativeScoreLabel);
-			layout.Children.Add(cummulativeScoreLabel);
+			setScoresColor(cumulativeScore, cumulativeScoreLabel);
+			layout.Children.Add(cumulativeScoreLabel);
 			layout.Children.Add(backButton);
 
 			this.Content = layout;

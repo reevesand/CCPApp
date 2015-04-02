@@ -62,6 +62,7 @@ namespace CCPApp.Views
 			TableView checklistsView = new TableView();
 			TableRoot root = new TableRoot("Select a Checklist");
 			TableSection tempChecklistSection = new TableSection();
+			checklistsView.Intent = TableIntent.Menu;
 			//TableSection inspectorSection = new TableSection();
 			List<ViewCell> cells = new List<ViewCell>();
 

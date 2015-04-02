@@ -182,11 +182,16 @@ namespace CCPApp
 	}
 	public class GoToQuestionButton : Button
 	{
-		Question question { get; set; }
+		//Question question { get; set; }
 		InspectionPage inspectionPage { get; set; }
 		public GoToQuestionButton(Question question, InspectionPage inspectionPage)
 		{
 			this.question = question;
+			this.inspectionPage = inspectionPage;
+			this.Clicked += clickQuestionButton;
+		}
+		public GoToQuestionButton(InspectionPage inspectionPage)
+		{
 			this.inspectionPage = inspectionPage;
 			this.Clicked += clickQuestionButton;
 		}
@@ -199,5 +204,21 @@ namespace CCPApp
 
 			await App.Navigation.PopAsync();
 		}
+
+		public Question question
+		{
+			get
+			{
+				return (Question)GetValue(QuestionProperty);
+			}
+			set
+			{
+				SetValue(QuestionProperty, value);
+			}
+		}
+
+		public static readonly BindableProperty QuestionProperty =
+			BindableProperty.Create<GoToQuestionButton, Question>
+			(p => p.question, null);
 	}
 }

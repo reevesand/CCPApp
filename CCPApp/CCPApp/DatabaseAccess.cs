@@ -62,7 +62,12 @@ namespace CCPApp
 		}
 		public async void SaveQuestion(Question question)
 		{
-			await Task.Run(() => database.Update(question));
+			await Task.Run(() => {
+				lock (dbSync)
+				{
+					database.Update(question);
+				}
+			});
 		}
 		public async void SaveChecklists(List<ChecklistModel> checklists)
 		{
@@ -136,6 +141,16 @@ namespace CCPApp
 				}
 			});
 			await Task.Run(action);
+		}
+		public async void MinorUpdateInspection(Inspection inspection)
+		{
+			await Task.Run(() =>
+			{
+				lock (dbSync)
+				{
+					database.Update(inspection);
+				}
+			});
 		}
 		public async void SaveScore(ScoredQuestion score)
 		{

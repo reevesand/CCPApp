@@ -1,5 +1,6 @@
 ﻿using CCPApp.Items;
 using CCPApp.Models;
+using CCPApp.Utilities;
 using CCPApp.Views;
 using System;
 using System.Collections.Generic;
@@ -37,7 +38,7 @@ namespace CCPApp
 			checklists.AddRange(database.LoadAllChecklists());
 
 			FrontPage frontPage = new FrontPage(checklists);
-			
+
 			MainPage = new NavigationPage(frontPage);
 			Navigation = MainPage.Navigation;
 		}

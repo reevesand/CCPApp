@@ -20,6 +20,7 @@ namespace CCPApp.Views
 		public void ResetInspectors()
 		{
 			TableView inspectorsView = new TableView();
+			inspectorsView.Intent = TableIntent.Menu;
 			TableRoot root = new TableRoot();
 			TableSection section = new TableSection();
 			List<ViewCell> cells = new List<ViewCell>();

@@ -28,7 +28,7 @@
 	<key>CFBundleIdentifier</key>
 	<string>com.SRCA.CCPApp</string>
 	<key>CFBundleVersion</key>
-	<string>1.0</string>
+	<string>0.8.0.0</string>
 	<key>CFBundleShortVersionString</key>
 	<string></string>
 	<key>UIStatusBarStyle</key>
@@ -42,6 +42,13 @@
 		<string>Icon-60@2x.png</string>
 		<string>Icon-76.png</string>
 		<string>Icon-76@2x.png</string>
+		<string>Default.png</string>
+		<string>Default@2x.png</string>
+		<string>Default-568h@2x.png</string>
+		<string>Default-Landscape.png</string>
+		<string>Default-Landscape@2x.png</string>
+		<string>Default-Portrait.png</string>
+		<string>Default-Portrait@2x.png</string>
 		<string>Icon-Small-50@2x.png</string>
 		<string>Icon-Small-50.png</string>
 		<string>Icon-Small-40.png</string>

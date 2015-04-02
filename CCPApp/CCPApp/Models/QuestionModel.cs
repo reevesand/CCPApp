@@ -68,6 +68,21 @@ namespace CCPApp.Models
 		{
 			References = new List<Reference>();
 		}
+
+		public string FullString
+		{
+			get
+			{
+				return ToString() + " " + Text;
+			}
+		}
+		public Question SelfReference
+		{
+			get
+			{
+				return this;
+			}
+		}
 	}
 	/// <summary>
 	/// Represents a reference for a question.

@@ -20,24 +20,33 @@ namespace CCPApp.Views
 			exportButton.Text = "Export";
 			ToolbarItems.Add(exportButton);
 		}
-		public static string GeneratePdf(Inspection inspection)
+		public static string GeneratePdf(Inspection inspection, ReportOptionsModel model = null)
 		{
-			string fileName = "Report.pdf";
-			IGeneratePdf pdfMaker = DependencyService.Get<IGeneratePdf>();
-			pdfMaker.Initialize(inspection);
-			//draw comment pages
-			foreach (Comment comment in inspection.comments)
+			if (model == null)
 			{
-				pdfMaker.CreateCommentPage(comment);
-				if (comment != inspection.comments.Last())
+				model = new ReportOptionsModel();
+			}
+			IGeneratePdf pdfMaker = DependencyService.Get<IGeneratePdf>();
+			string fileName = pdfMaker.Initialize(inspection);
+			int numCommentPages = 0;
+			//draw comment pages
+			if (model.Comments)
+			{
+				foreach (Comment comment in inspection.comments)
 				{
-					pdfMaker.NewPage();
+					numCommentPages++;
+					pdfMaker.CreateCommentPage(comment);
+					if (comment != inspection.comments.Last())
+					{
+						pdfMaker.NewPage();
+					}
 				}
 			}
 			//draw question listing
-			List<ReportSection> reportSections = PrepareInspectionForScoring(inspection, pdfMaker);
-			if (true)
+			List<ReportSection> reportSections = PrepareInspectionForScoring(inspection);
+			if (model.Questions)
 			{
+				pdfMaker.NewPageIfNotEmpty();
 				foreach (ReportSection section in reportSections)
 				{
 					pdfMaker.CreateQuestionSection(section);
@@ -45,35 +54,45 @@ namespace CCPApp.Views
 					{
 						pdfMaker.NewPage();
 					}
-					break;
 				}
 			}
 
 			//draw section totals
-			pdfMaker.NewPageIfNotEmpty();
-			pdfMaker.CreateSectionTotals();
+			if (model.Totals)
+			{
+				pdfMaker.NewPageIfNotEmpty();
+				pdfMaker.CreateSectionTotals();
+			}
 
 			//draw checklist structure
-			pdfMaker.NewPageIfNotEmpty();
-			pdfMaker.CreateStructure();
+			if (model.Structure)
+			{
+				pdfMaker.NewPageIfNotEmpty();
+				pdfMaker.CreateStructure();
+			}
 
 			//draw scoresheet
-			pdfMaker.NewPageIfNotEmpty();
-			pdfMaker.CreateScoreSheet();
+			if (model.ScoreSheet)
+			{
+				pdfMaker.NewPageIfNotEmpty();
+				pdfMaker.CreateScoreSheet();
+			}
 
 			//draw scores graph
-			pdfMaker.NewPageIfNotEmpty();
-			pdfMaker.CreateScoreGraph();
-
+			if (model.GraphSheet)
+			{
+				pdfMaker.NewPageIfNotEmpty();
+				pdfMaker.CreateScoreGraph();
+			}
 			pdfMaker.Finish();
+			pdfMaker.StampFooter(numCommentPages);
 
 			return fileName;
 		}
 
-		private static List<ReportSection> PrepareInspectionForScoring(Inspection inspection, IGeneratePdf pdfMaker)
+		private static List<ReportSection> PrepareInspectionForScoring(Inspection inspection)
 		{
 			List<ReportSection> reportSections = new List<ReportSection>();
-			pdfMaker.NewPageIfNotEmpty();
 			double sumTotalAvailablePoints = 0;
 			double sumTotalEarnedPoints = 0;
 			bool anyUnacceptables = false;

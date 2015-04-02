@@ -1,21 +1,72 @@
-﻿using System;
+﻿using CCPApp.Models;
+using CCPApp.Utilities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection.Emit;
 using System.Text;
-
 using Xamarin.Forms;
 
 namespace CCPApp.Views
 {
 	public class PrepareReportPage : ContentPage
 	{
-
-		public PrepareReportPage()
+		Inspection inspection;
+		ReportOptionsModel model = new ReportOptionsModel();
+		public PrepareReportPage(Inspection inspection)
 		{
-			Padding = new Thickness(10, Device.OnPlatform(20, 0, 0), 10, 5);
+			this.inspection = inspection;
+			Padding = new Thickness(10, 0, 10, 5);
 			Title = "Report Options";
-			TableView table = new TableView();
+			StackLayout layout = new StackLayout();
+			layout.VerticalOptions = LayoutOptions.Center;
+			layout.HorizontalOptions = LayoutOptions.End;
+
+			Label CommentLabel = new Label { Text = "Comments" };
+			Switch CommentSwitch = new Switch { IsToggled = true, BindingContext = model };
+			CommentSwitch.SetBinding(Switch.IsToggledProperty, "Comments");
+			StackLayout CommentLayout = new StackLayout { Children = { CommentLabel, CommentSwitch }, Orientation = StackOrientation.Horizontal, HorizontalOptions = LayoutOptions.End };
+			//BothSidesLayout CommentLayout = new BothSidesLayout(CommentLabel, CommentSwitch);
+
+			Label QuestionsLabel = new Label { Text = "Questions List" };
+			Switch QuestionsSwitch = new Switch { IsToggled = true, BindingContext = model };
+			QuestionsSwitch.SetBinding(Switch.IsToggledProperty, "Questions");
+			StackLayout QuestionsLayout = new StackLayout { Children = { QuestionsLabel, QuestionsSwitch }, Orientation = StackOrientation.Horizontal, HorizontalOptions = LayoutOptions.End };
+
+			Label StructureLabel = new Label { Text = "Checklist Structure" };
+			Switch StructureSwitch = new Switch { IsToggled = true, BindingContext = model };
+			StructureSwitch.SetBinding(Switch.IsToggledProperty, "Structure");
+			StackLayout StructureLayout = new StackLayout { Children = { StructureLabel, StructureSwitch }, Orientation = StackOrientation.Horizontal, HorizontalOptions = LayoutOptions.End };
+
+			Label TotalsLabel = new Label { Text = "Section Totals" };
+			Switch TotalsSwitch = new Switch { IsToggled = true, BindingContext = model };
+			TotalsSwitch.SetBinding(Switch.IsToggledProperty, "Totals");
+			StackLayout TotalsLayout = new StackLayout { Children = { TotalsLabel, TotalsSwitch }, Orientation = StackOrientation.Horizontal, HorizontalOptions = LayoutOptions.End };
+
+			Label ScoreSheetLabel = new Label { Text = "Score Sheet" };
+			Switch ScoreSheetSwitch = new Switch { IsToggled = true, BindingContext = model };
+			ScoreSheetSwitch.SetBinding(Switch.IsToggledProperty, "ScoreSheet");
+			StackLayout ScoreSheetLayout = new StackLayout { Children = { ScoreSheetLabel, ScoreSheetSwitch }, Orientation = StackOrientation.Horizontal, HorizontalOptions = LayoutOptions.End };
+
+			Label GraphLabel = new Label { Text = "Graph Sheet" };
+			Switch GraphSwitch = new Switch { IsToggled = true, BindingContext = model };
+			GraphSwitch.SetBinding(Switch.IsToggledProperty, "GraphSheet");
+			StackLayout GraphLayout = new StackLayout { Children = { GraphLabel, GraphSwitch }, Orientation = StackOrientation.Horizontal, HorizontalOptions = LayoutOptions.End };
+
+			Button GenerateButton = new Button { Text = "Generate Report" };
+			GenerateButton.Clicked += GenerateButtonClicked;
+
+			layout.Children.Add(CommentLayout);
+			layout.Children.Add(QuestionsLayout);
+			layout.Children.Add(StructureLayout);
+			layout.Children.Add(TotalsLayout);
+			layout.Children.Add(ScoreSheetLayout);
+			layout.Children.Add(GraphLayout);
+			layout.Children.Add(GenerateButton);
+
+			Content = layout;
+
+			/*TableView table = new TableView();
 			TableRoot root = new TableRoot();
 			TableSection section = new TableSection();
 
@@ -69,7 +120,7 @@ namespace CCPApp.Views
 			section.Add(cells);
 			root.Add(section);
 			table.Root = root;
-			Content = table;
+			Content = table;*/
 
 			/*Grid grid = new Grid
 			{
@@ -95,14 +146,15 @@ namespace CCPApp.Views
 
 			Content = grid;*/
 		}
-	}
-	internal class ReportOptionsModel
-	{
-		public bool Comemnts { get; set; }
-		public bool Questions { get; set; }
-		public bool Structure { get; set; }
-		public bool Totals { get; set; }
-		public bool ScoreSheet { get; set; }
-		public bool GraphSheet { get; set; }
+
+		public void GenerateButtonClicked(object sender, EventArgs e)
+		{
+			Device.BeginInvokeOnMainThread(async () =>
+			{
+				string generatedReport = ReportPage.GeneratePdf(inspection,model);
+				ReportPage page = new ReportPage(generatedReport);
+				await App.Navigation.PushAsync(page);
+			});
+		}
 	}
 }

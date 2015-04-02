@@ -24,9 +24,9 @@ namespace CCPApp.iOS.Renderers
 				Element.PropertyChanged += (s_, e_) => SetNeedsDisplay();
 			}
 		}
-		public override void Draw(System.Drawing.RectangleF rect)
-		{
-			base.Draw(rect);
-		}
+		//public override void Draw(System.Drawing.RectangleF rect)
+		//{
+		//	base.Draw(rect);
+		//}
 	}
 }

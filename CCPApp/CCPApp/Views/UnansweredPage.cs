@@ -27,19 +27,32 @@ namespace CCPApp.Views
 			{
 				questions.RemoveAll(q => q.Id == score.QuestionId);
 			}
-			TableView table = new TableView();
-			TableSection tableSection = new TableSection();
+			//TableView table = new TableView();
+			//TableSection tableSection = new TableSection();
 
-			foreach (Question question in questions)
+			ListView view = new ListView();
+			view.ItemsSource = questions;
+			view.ItemTemplate = new DataTemplate(() =>
+			{				
+				GoToQuestionButton button = new GoToQuestionButton(inspectionPage);
+				button.SetBinding(Button.TextProperty,"FullString");
+				button.SetBinding(GoToQuestionButton.QuestionProperty, "SelfReference");
+				ViewCell cell = new ViewCell();
+				cell.View = button;
+				return cell;
+			});
+
+			/*foreach (Question question in questions)
 			{
 				GoToQuestionButton button = new GoToQuestionButton(question, inspectionPage);
 				button.Text = question.ToString() + " " + question.Text;
 				ViewCell cell = new ViewCell();
 				cell.View = button;
-				tableSection.Add(cell);
-			}
-			table.Root.Add(tableSection);
-			this.Content = table;
+				//tableSection.Add(cell);
+			}*/
+			//table.Root.Add(tableSection);
+			//this.Content = table;
+			Content = view;
 		}
 	}
 }

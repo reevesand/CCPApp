@@ -18,7 +18,6 @@ namespace CCPApp.Views
 		public InspectionPage(Inspection inspection)
 		{
 			this.inspection = inspection;
-			this.CurrentPageChanged += this.PageChanged;
 
 			ToolbarItem scoreButton = new ToolbarItem();
 			scoreButton.Text = "Scores";
@@ -56,6 +55,15 @@ namespace CCPApp.Views
 					Children.Add(page);
 				}
 			}
+			if (inspection.GetLastViewedQuestion() == null)
+			{
+				inspection.SetLastViewedQuestion(checklist.Sections.First().AllScorableQuestions().First());
+			}
+			this.CurrentPageChanged += this.PageChanged;
+			Question targetQuestion = inspection.GetLastViewedQuestion();
+			ISectionPage targetPage = SetSectionPage(targetQuestion.section);
+			targetPage.Initialize();
+			targetPage.SetSelectedQuestion(targetQuestion);
 		}
 		private void PageChanged(object sender, EventArgs e)
 		{
@@ -65,6 +73,7 @@ namespace CCPApp.Views
 			}
 			ISectionPage page = (ISectionPage)CurrentPage;
 			page.Initialize();
+			inspection.SetLastViewedQuestion(page.GetCurrentQuestion());
 		}
 
 		private async void ClickScoresButton(object sender, EventArgs e)
@@ -94,9 +103,9 @@ namespace CCPApp.Views
 			Device.BeginInvokeOnMainThread(async () =>
 			{
 				//Pop up a loading page if this proves to be slow.
-				string generatedReport = ReportPage.GeneratePdf(inspection);
+				//string generatedReport = ReportPage.GeneratePdf(inspection);
 				//ReportPage page = new ReportPage(generatedReport);
-				PrepareReportPage page = new PrepareReportPage();
+				PrepareReportPage page = new PrepareReportPage(inspection);
 				await App.Navigation.PushAsync(page);
 			});
 		}
@@ -158,6 +167,11 @@ namespace CCPApp.Views
 		{
 			return section;
 		}
+		protected override void OnCurrentPageChanged()
+		{
+			inspection.SetLastViewedQuestion(GetCurrentQuestion());
+			base.OnCurrentPageChanged();
+		}
 	}
 	internal class SectionNoPartsPage : CarouselPage, ISectionPage
 	{
@@ -201,6 +215,11 @@ namespace CCPApp.Views
 		{
 			return section;
 		}
+		protected override void OnCurrentPageChanged()
+		{
+			inspection.SetLastViewedQuestion(GetCurrentQuestion());
+			base.OnCurrentPageChanged();
+		}
 	}
 
 	internal class PartPage : CarouselPage
@@ -218,10 +237,15 @@ namespace CCPApp.Views
 			{
 				Children.Add(page);
 			}
+			this.CurrentPageChanged += PartPage_CurrentPageChanged;
 		}
 		public SectionPart GetPart()
 		{
 			return part;
+		}
+		protected void PartPage_CurrentPageChanged(object sender, EventArgs e)
+		{
+			inspection.SetLastViewedQuestion(((QuestionPage)CurrentPage).question);
 		}
 	}
 }
