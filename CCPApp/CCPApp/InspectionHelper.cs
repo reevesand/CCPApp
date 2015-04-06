@@ -18,7 +18,7 @@ namespace CCPApp
 			ChecklistModel checklist = button.checklist;
 			EditInspectionPage page = new EditInspectionPage(null,checklist);
 			page.CallingPage = (ChecklistPage)button.ParentView.ParentView;
-			await App.Navigation.PushModalAsync(page);
+			await App.Navigation.PushAsync(page);
 		}
 		public static void SelectInspectionButtonClicked(object sender, EventArgs e)
 		{
@@ -81,105 +81,7 @@ namespace CCPApp
 		}
 	}
 
-	public class EditInspectionPage : ContentPage
-	{
-		public TableSection tableSection { get; set; }
-		public Inspection inspection { get; set; }
-		public ChecklistPage CallingPage { get; set; }
-		public GenericPicker<Inspector> inspectorPicker { get; set; }
-		public EditInspectionPage(Inspection existingInspection = null, ChecklistModel checklist = null)
-		{
-			if (existingInspection == null)
-			{
-				inspection = new Inspection();
-				inspection.Checklist = checklist;
-				inspection.ChecklistId = checklist.Id;
-				Title = "Create new Inspection";
-			}
-			else
-			{
-				inspection = existingInspection;
-				Title = "Edit Inspection";
-			}
-			TableView view = new TableView();
-			TableRoot root = new TableRoot("Edit Inspection");
-			TableSection section = new TableSection();
-			Padding = new Thickness(0, Device.OnPlatform(20, 0, 0), 0, 0);
-			EntryCell NameCell = new EntryCell
-			{
-				BindingContext = inspection,
-				Label = "Inspection Name:",
-			};
-			NameCell.SetBinding(EntryCell.TextProperty, "Name");
-
-			EntryCell OrganizationCell = new EntryCell
-			{
-				BindingContext = inspection,
-				Label = "Organization:",
-			};
-			OrganizationCell.SetBinding(EntryCell.TextProperty,"Organization");
-
-			inspectorPicker = new GenericPicker<Inspector>();
-			List<Inspector> allInspectors = App.database.LoadAllInspectors();
-			foreach (Inspector inspector in allInspectors)
-			{
-				inspectorPicker.AddItem(inspector);
-			}
-			if (inspection.inspectors.Any())
-			{	//TODO update to deal with multiple inspectors
-				try
-				{
-					inspectorPicker.SelectedItem = inspection.inspectors.First();
-				}
-				catch (KeyNotFoundException){}
-			}
-			ViewCell inspectorCell = new ViewCell { View = inspectorPicker };
-
-			ViewCell SaveCell = new ViewCell();
-			ViewCell CancelCell = new ViewCell();
-			Button saveButton = new Button();
-			Button cancelButton = new Button();
-			saveButton.Clicked += SaveInspectionClicked;
-			cancelButton.Clicked += CancelInspectionClicked;
-			saveButton.Text = "Save";
-			cancelButton.Text = "Cancel";
-			SaveCell.View = saveButton;
-			CancelCell.View = cancelButton;
-
-			section.Add(NameCell);
-			section.Add(OrganizationCell);
-			section.Add(inspectorCell);
-			section.Add(SaveCell);
-			section.Add(CancelCell);
-			root.Add(section);
-			view.Root = root;
-			Content = view;
-		}
-
-		public async void SaveInspectionClicked(object sender, EventArgs e)
-		{
-			ChecklistModel checklist = inspection.Checklist;
-			//inspection.Name = NameCell.Text;
-			inspection.ChecklistId = checklist.Id;
-			if (!checklist.Inspections.Contains(inspection))
-			{
-				checklist.Inspections.Add(inspection);
-			}
-			if (inspectorPicker.SelectedIndex >= 0)
-			{
-				inspection.inspectors.Add(inspectorPicker.SelectedItem);
-			}
-			App.database.SaveInspection(inspection);
-
-			CallingPage.ResetInspections();
-
-			await App.Navigation.PopModalAsync(true);
-		}
-		public async void CancelInspectionClicked(object sender, EventArgs e)
-		{
-			await App.Navigation.PopModalAsync(true);
-		}
-	}
+	
 	public class GoToQuestionButton : Button
 	{
 		//Question question { get; set; }
@@ -204,7 +106,7 @@ namespace CCPApp
 
 			await App.Navigation.PopAsync();
 		}
-
+		
 		public Question question
 		{
 			get

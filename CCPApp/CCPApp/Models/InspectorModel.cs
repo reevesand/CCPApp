@@ -8,10 +8,10 @@ using System.Threading.Tasks;
 
 namespace CCPApp.Models
 {
-	public class Inspector
+	public class Inspector : IdModel
 	{
 		[PrimaryKey, AutoIncrement]
-		public int? Id { get; set; }
+		public override int? Id { get; set; }
 
 		public string Name { get; set; }
 
@@ -22,7 +22,7 @@ namespace CCPApp.Models
 		{
 			return Name;
 		}
-		public override bool Equals(object obj)
+		/*public override bool Equals(object obj)
 		{
 			if (obj.GetType() != typeof(Inspector))
 			{
@@ -36,7 +36,7 @@ namespace CCPApp.Models
 		public override int GetHashCode()
 		{
 			return Id.GetHashCode();
-		}
+		}*/
 		public Inspector()
 		{
 			inspections = new List<Inspection>();
@@ -52,6 +52,26 @@ namespace CCPApp.Models
 				}
 			}
 			App.database.DeleteInspector(inspector);
+		}
+		public Inspector SelfReference
+		{
+			get
+			{
+				return this;
+			}
+		}
+		static Inspector _null = null;
+		public static Inspector Null
+		{
+			get
+			{
+				if (_null == null)
+				{
+					_null = new Inspector();
+					_null.Name = string.Empty;
+				}
+				return _null;
+			}
 		}
 	}
 

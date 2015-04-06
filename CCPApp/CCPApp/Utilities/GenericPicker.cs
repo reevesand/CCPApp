@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Xamarin.Forms;
 
-namespace CCPApp.Items
+namespace CCPApp.Utilities
 {
 	public class GenericPicker<T> : Picker
 	{

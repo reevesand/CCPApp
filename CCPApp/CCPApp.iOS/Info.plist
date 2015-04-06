@@ -24,7 +24,7 @@
 	<key>MinimumOSVersion</key>
 	<string>6.0</string>
 	<key>CFBundleDisplayName</key>
-	<string>CCPApp</string>
+	<string>ICP</string>
 	<key>CFBundleIdentifier</key>
 	<string>com.SRCA.CCPApp</string>
 	<key>CFBundleVersion</key>

@@ -10,5 +10,6 @@ namespace CCPApp.Utilities
 	{
 		string exportInstructions();
 		string deleteChecklistWarning(string title);
+		string outbriefingInstructions();
 	}
 }

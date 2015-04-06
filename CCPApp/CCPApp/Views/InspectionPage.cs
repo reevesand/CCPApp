@@ -19,7 +19,7 @@ namespace CCPApp.Views
 		{
 			this.inspection = inspection;
 
-			ToolbarItem scoreButton = new ToolbarItem();
+			/*ToolbarItem scoreButton = new ToolbarItem();
 			scoreButton.Text = "Scores";
 			//scoreButton.Icon = "ScoresIcon.png";
 			scoreButton.Clicked += ClickScoresButton;
@@ -33,12 +33,17 @@ namespace CCPApp.Views
 
 			ToolbarItem reportButton = new ToolbarItem();
 			reportButton.Text = "Report";
-			reportButton.Clicked += ClickReportButton;
+			reportButton.Clicked += ClickReportButton;*/
 
-			ToolbarItems.Add(scoreButton);
-			ToolbarItems.Add(unansweredButton);
-			ToolbarItems.Add(disputedButton);
-			ToolbarItems.Add(reportButton);
+			ToolbarItem actionsButton = new ToolbarItem();
+			actionsButton.Text = "Actions";
+			actionsButton.Clicked += ClickActionsButton;
+
+			//ToolbarItems.Add(scoreButton);
+			//ToolbarItems.Add(unansweredButton);
+			//ToolbarItems.Add(disputedButton);
+			//ToolbarItems.Add(reportButton);
+			ToolbarItems.Add(actionsButton);
 			ChecklistModel checklist = inspection.Checklist;
 			foreach (SectionModel section in checklist.Sections)
 			{
@@ -76,13 +81,13 @@ namespace CCPApp.Views
 			inspection.SetLastViewedQuestion(page.GetCurrentQuestion());
 		}
 
-		private async void ClickScoresButton(object sender, EventArgs e)
+		private async void ClickScoresButton()
 		{
 			Question question = ((ISectionPage)CurrentPage).GetCurrentQuestion();
 			ScoresPage page = new ScoresPage(inspection, question);
 			await App.Navigation.PushAsync(page);
 		}
-		private void ClickUnansweredButton(object sender, EventArgs e)
+		private void ClickUnansweredButton()
 		{
 			Device.BeginInvokeOnMainThread(async () =>
 			{
@@ -90,7 +95,7 @@ namespace CCPApp.Views
 				await App.Navigation.PushAsync(page);
 			});
 		}
-		private void ClickDisputedButton(object sender, EventArgs e)
+		private void ClickDisputedButton()
 		{
 			Device.BeginInvokeOnMainThread(async () =>
 			{
@@ -98,7 +103,7 @@ namespace CCPApp.Views
 				await App.Navigation.PushAsync(page);
 			});
 		}
-		private void ClickReportButton(object sender, EventArgs e)
+		private void ClickReportButton()
 		{
 			Device.BeginInvokeOnMainThread(async () =>
 			{
@@ -108,6 +113,36 @@ namespace CCPApp.Views
 				PrepareReportPage page = new PrepareReportPage(inspection);
 				await App.Navigation.PushAsync(page);
 			});
+		}
+		private void ClickOutbriefingButton()
+		{
+			Device.BeginInvokeOnMainThread(async () =>
+			{
+				OutbriefingPage page = new OutbriefingPage(inspection);
+				await App.Navigation.PushAsync(page);
+			});
+		}
+		private async void ClickActionsButton(object sender, EventArgs e)
+		{
+			string action = await DisplayActionSheet("Inspection Actions", "Cancel", null, "Generate Report", "Disputed Questions", "Unanswered Questions", "View Scores","Generate Outbriefing","Cancel");
+			switch (action)
+			{
+			case "Generate Report":
+				ClickReportButton();
+				break;
+			case "Disputed Questions":
+				ClickDisputedButton();
+				break;
+			case "Unanswered Questions":
+				ClickUnansweredButton();
+				break;
+			case "View Scores":
+				ClickScoresButton();
+				break;
+			case "Generate Outbriefing":
+				ClickOutbriefingButton();
+				break;
+			}
 		}
 
 		public ISectionPage SetSectionPage(SectionModel section)

@@ -58,6 +58,10 @@ namespace CCPApp.iOS
 		static BaseFont HelBaseFont = BaseFont.CreateFont(BaseFont.HELVETICA, BaseFont.CP1252, false);
 		static BaseFont HelBoldBaseFont = BaseFont.CreateFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1252, false);
 
+		string UnsatisfactoryRange;
+		string SatisfactoryRange;
+		string CommendableRange;
+
 		public string Initialize(Inspection inspection, bool scoredOnly = false)
 		{
 			this.inspection = inspection;
@@ -87,6 +91,22 @@ namespace CCPApp.iOS
 			fonts["TNR11Bold"] = new Font(Font.TIMES_ROMAN, 11, Font.BOLD);
 			fonts["TNR11BoldItalic"] = new Font(Font.TIMES_ROMAN, 11, Font.BOLDITALIC);
 			fonts["TNR16Bold"] = new Font(Font.TIMES_ROMAN, 16, Font.BOLD);
+
+			int commendable = inspection.Checklist.ScoreThresholdCommendable;
+			int satisfactory = inspection.Checklist.ScoreThresholdSatisfactory;
+			CommendableRange = "(" + commendable.ToString() + "% to 100%)";
+			SatisfactoryRange = "(" + satisfactory.ToString() + "% to " + (commendable - 1).ToString() + "%)";
+			UnsatisfactoryRange = "(0% to "+(satisfactory-1).ToString()+"%)";
+			/*
+			 * ThresholdBuilder.Append("Unsatisfactory (0% to ");
+			ThresholdBuilder.Append(satisfactory - 1);
+			ThresholdBuilder.Append("%)   Satisfactory (");
+			ThresholdBuilder.Append(satisfactory);
+			ThresholdBuilder.Append(" to ");
+			ThresholdBuilder.Append(commendable - 1);
+			ThresholdBuilder.Append("%)   Commendable (");
+			ThresholdBuilder.Append(commendable);
+			ThresholdBuilder.Append(" to 100%)");*/
 
 			return completeFileName;
 		}
@@ -761,7 +781,6 @@ namespace CCPApp.iOS
 				it.ListItem sectionName = new ListItem("Section " + section.Label + ": " + section.Title,fonts["TNR10"]);
 				list.Add(sectionName);
 				ListItem LastItem;
-				//list.Add("Section " + section.Label + ": " + section.Title);
 				if (section.SectionParts.Any())
 				{
 					it.List partList = new it.List();
@@ -821,14 +840,63 @@ namespace CCPApp.iOS
 			cb.Rectangle(secondLeft, boxBottom, 180, 45);
 			cb.Stroke();
 
-			//TODO Place the colored box first
+			float lineOneOffset = 31;
+			float lineTwoOffset = 18;
+			float lineThreeOffset = 5;
+			 
+			if (inspection.availablePoints > 0)
+			{
+				it.Color scoreColor = GetRatingColor(inspection.rating);
+				cb.SetColorFill(scoreColor);
+				cb.Rectangle(firstLeft + 94.5F, boxBottom + 4, 76.5F, 13);
+				cb.Fill();
+				cb.SetColorFill(it.Color.BLACK);
+			}
 
 			cb.SetFontAndSize(TimesBaseFont, 11);
 			cb.BeginText();
-			cb.ShowTextAligned(it.Element.ALIGN_LEFT, "Available Points:", firstLeft + 5, boxBottom + 40, 0);
-			cb.ShowTextAligned(it.Element.ALIGN_LEFT, "Earned Points:", firstLeft + 5, boxBottom + 25, 0);
-			cb.ShowTextAligned(it.Element.ALIGN_LEFT, "Score:", firstLeft + 5, boxBottom + 10, 0);
+
+			cb.ShowTextAligned(it.Element.ALIGN_LEFT, "Available Points:", firstLeft + 5, boxBottom + lineOneOffset, 0);
+			cb.ShowTextAligned(it.Element.ALIGN_LEFT, "Earned Points:", firstLeft + 5, boxBottom + lineTwoOffset, 0);
+			cb.ShowTextAligned(it.Element.ALIGN_LEFT, "Score:", firstLeft + 5, boxBottom + lineThreeOffset, 0);
+
+			cb.ShowTextAligned(it.Element.ALIGN_CENTER, inspection.availablePoints.ToString(), firstLeft + 135, boxBottom + lineOneOffset, 0);
+			cb.ShowTextAligned(it.Element.ALIGN_CENTER, inspection.earnedPoints.ToString(), firstLeft + 135, boxBottom + lineTwoOffset, 0);
+
 			cb.EndText();
+			cb.SetFontAndSize(TimesBaseFont, 9);
+			cb.BeginText();
+
+			cb.ShowTextAligned(it.Element.ALIGN_LEFT, "Commendable", secondLeft + 23, boxBottom + lineOneOffset, 0);
+			cb.ShowTextAligned(it.Element.ALIGN_LEFT, "Satisfactory", secondLeft + 23, boxBottom + lineTwoOffset + 2, 0);
+			cb.ShowTextAligned(it.Element.ALIGN_LEFT, "Unsatisfactory", secondLeft + 23, boxBottom + lineThreeOffset + 4, 0);
+
+			cb.ShowTextAligned(it.Element.ALIGN_LEFT, CommendableRange, secondLeft + 81, boxBottom + lineOneOffset, 0);
+			cb.ShowTextAligned(it.Element.ALIGN_LEFT, SatisfactoryRange, secondLeft + 81, boxBottom + lineTwoOffset + 2, 0);
+			cb.ShowTextAligned(it.Element.ALIGN_LEFT, UnsatisfactoryRange, secondLeft + 81, boxBottom + lineThreeOffset + 4, 0);
+
+			cb.EndText();
+			cb.SetColorFill(it.Color.WHITE);
+			cb.SetFontAndSize(TimesBoldBaseFont, 11);
+			cb.BeginText();
+
+			if (inspection.availablePoints > 0)
+			{
+				cb.ShowTextAligned(it.Element.ALIGN_CENTER, PercentString(inspection.percentage), firstLeft + 139, boxBottom + lineThreeOffset + 2, 0);
+			}
+			cb.EndText();
+
+			cb.SetColorFill(blueColor);
+			cb.Rectangle(secondLeft + 5, boxBottom + lineOneOffset, 13.5F, 9);
+			cb.FillStroke();
+			cb.SetColorFill(greenColor);
+			cb.Rectangle(secondLeft + 5, boxBottom + lineTwoOffset + 2, 13.5F, 9);
+			cb.FillStroke();
+			cb.SetColorFill(redColor);
+			cb.Rectangle(secondLeft + 5,  boxBottom + lineThreeOffset + 4, 13.5F, 9);
+			cb.FillStroke();
+
+			cb.SetColorFill(it.Color.BLACK);
 		}
 
 		public void StampFooter(int pagesToSkip)
@@ -941,22 +1009,7 @@ namespace CCPApp.iOS
 			PdfPCell ScoreCell;
 			if (section.availablePoints > 0)
 			{
-				it.Color color;
-				switch (section.rating)
-				{
-				case Rating.Unacceptable:
-					color = redColor;
-					break;
-				case Rating.Satisfactory:
-					color = greenColor;
-					break;
-				case Rating.Commendable:
-					color = blueColor;
-					break;
-				default:
-					color = it.Color.WHITE;
-					break;
-				}
+				it.Color color = GetRatingColor(section.rating);
 				Phrase percentPhrase = new Phrase(PercentString(section.percentage), new Font(Font.TIMES_ROMAN, 11, Font.BOLDITALIC,color));
 				ScoreCell = new PdfPCell(percentPhrase);
 			}
@@ -999,22 +1052,7 @@ namespace CCPApp.iOS
 			}
 			else
 			{
-				it.Color color;
-				switch (rating)
-				{
-				case Rating.Unacceptable:
-					color = redColor;
-					break;
-				case Rating.Satisfactory:
-					color = greenColor;
-					break;
-				case Rating.Commendable:
-					color = blueColor;
-					break;
-				default:
-					color = it.Color.WHITE;
-					break;
-				}
+				it.Color color = GetRatingColor(rating);
 				ScoreCell = new ColorCodedCell(color, PercentString(score), ColorCodedCell.ScoreCellSide.Wide, true);
 				//ScoreCell = new PdfPCell(new Phrase(PercentString((double)score), fonts["TNR10"]));
 			}
@@ -1118,15 +1156,12 @@ namespace CCPApp.iOS
 			StringBuilder ThresholdBuilder = new StringBuilder();
 			int satisfactory = inspection.Checklist.ScoreThresholdSatisfactory;
 			int commendable = inspection.Checklist.ScoreThresholdCommendable;
-			ThresholdBuilder.Append("Unsatisfactory (0% to ");
-			ThresholdBuilder.Append(satisfactory - 1);
-			ThresholdBuilder.Append("%)   Satisfactory (");
-			ThresholdBuilder.Append(satisfactory);
-			ThresholdBuilder.Append(" to ");
-			ThresholdBuilder.Append(commendable - 1);
-			ThresholdBuilder.Append("%)   Commendable (");
-			ThresholdBuilder.Append(commendable);
-			ThresholdBuilder.Append(" to 100%)");
+			ThresholdBuilder.Append("Unsatisfactory ");
+			ThresholdBuilder.Append(UnsatisfactoryRange);
+			ThresholdBuilder.Append("   Satisfactory ");
+			ThresholdBuilder.Append(SatisfactoryRange);
+			ThresholdBuilder.Append("   Commendable ");
+			ThresholdBuilder.Append(CommendableRange);
 			cb.SetFontAndSize(TimesItalicBaseFont, 8);
 			cb.BeginText();
 			cb.ShowTextAligned(it.Element.ALIGN_LEFT, ThresholdBuilder.ToString(), boxLeft + 5, boxBottom + 5, 0);
@@ -1135,7 +1170,21 @@ namespace CCPApp.iOS
 
 		internal string PercentString(double percent)
 		{
-			return (percent * 100).ToString("###.##") + "%";
+			return (percent * 100).ToString("###.#") + "%";
+		}
+		protected it.Color GetRatingColor(Rating rating)
+		{
+			switch (rating)
+			{
+			case Rating.Unacceptable:
+				return redColor;
+			case Rating.Satisfactory:
+				return greenColor;
+			case Rating.Commendable:
+				return blueColor;
+			default:
+				return it.Color.WHITE;
+			}
 		}
 	}
 

@@ -133,11 +133,29 @@ namespace CCPApp
 					}
 					foreach (Inspector inspector in inspection.inspectors)
 					{
+						IEnumerable<InspectorInspections> linksAlreadyExist = database.Table<InspectorInspections>()
+							.Where(l => l.InspectionId == inspection.Id && l.InspectorId == inspector.Id);
+						if (linksAlreadyExist.Any())
+						{
+							continue;
+						}
 						InspectorInspections link = new InspectorInspections();
 						link.InspectionId = inspection.Id;
 						link.InspectorId = inspector.Id;
 						database.InsertOrReplace(link);
 					}
+
+					//Remove any inspectors that are no longer on the inspection.
+					List<InspectorInspections> linksToDelete = new List<InspectorInspections>();
+					foreach (Inspector inspector in LoadAllInspectors())
+					{
+						if (!inspection.inspectors.Contains(inspector))
+						{
+							linksToDelete.AddRange(database.Table<InspectorInspections>()
+								.Where(link => link.InspectionId == inspection.Id && link.InspectorId == inspector.Id));
+						}
+					}
+					database.DeleteAll(linksToDelete);
 				}
 			});
 			await Task.Run(action);

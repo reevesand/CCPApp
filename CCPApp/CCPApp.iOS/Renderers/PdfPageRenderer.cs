@@ -66,8 +66,17 @@ namespace CCPApp.iOS.Renderers
 				return;
 			}
 			PdfPage page = (PdfPage)Element;
-			string tempFolder = new FileManage().GetTempFolder();
-			string path = System.IO.Path.Combine(tempFolder, page.FileName);
+			string path;
+			if (page.useTemp)
+			{
+				string tempFolder = new FileManage().GetTempFolder();
+				path = System.IO.Path.Combine(tempFolder, page.FileName);
+			}
+			else
+			{
+				string libraryFolder = new FileManage().GetLibraryFolder();
+				path = System.IO.Path.Combine(libraryFolder, page.FileName);
+			}
 
 			UIWebView webView = new UIWebView();
 

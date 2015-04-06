@@ -15,6 +15,10 @@ namespace CCPApp.Views
 		//public string ChecklistTitle { get; set; }
 		public ChecklistPage(ChecklistModel checklist)
 		{
+			ToolbarItem inspectorButton = new ToolbarItem();
+			inspectorButton.Text = "Inspectors";
+			inspectorButton.Clicked += InspectorHelper.openInspectorsPage;
+			ToolbarItems.Add(inspectorButton);
 			Title = checklist.Title;
 			this.checklist = checklist;
 			ResetInspections();
@@ -62,7 +66,7 @@ namespace CCPApp.Views
 			Inspection inspection = button.BoundObject;
 			EditInspectionPage page = new EditInspectionPage(inspection);
 			page.CallingPage = this;
-			await App.Navigation.PushModalAsync(page);
+			await App.Navigation.PushAsync(page);
 		}
 		public async void deleteInspection(object sender, EventArgs e)
 		{

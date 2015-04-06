@@ -79,7 +79,8 @@
     <ConsolePause>False</ConsolePause>
     <CodesignKey>iPhone Distribution</CodesignKey>
     <BuildIpa>True</BuildIpa>
-    <CodesignProvision>6316fcf3-df5e-46f5-a8ee-0013f4144ebf</CodesignProvision>
+    <CodesignProvision>
+    </CodesignProvision>
     <CodesignEntitlements />
     <CodesignResourceRules />
     <CodesignExtraArgs />
@@ -103,6 +104,7 @@
     </Compile>
     <Compile Include="Renderers\EditorRenderer.cs" />
     <Compile Include="Renderers\TableViewRenderer.cs" />
+    <Compile Include="SaveInspection.cs" />
     <Compile Include="Utilities\UnzipHelper.cs" />
     <Compile Include="Renderers\PdfPageRenderer.cs" />
     <Compile Include="Renderers\ResizingLayoutRenderer.cs" />

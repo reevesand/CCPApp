@@ -15,18 +15,39 @@ namespace CCPApp.Views
 	{
 		TableSection checklistSection;
 		public List<ChecklistModel> checklists { get; set; }
+		ViewCell ResetCell;
+
 		public FrontPage(List<ChecklistModel> inputChecklists)
 		{
 			this.checklists = inputChecklists;
 			ToolbarItem inspectorButton = new ToolbarItem();
 			inspectorButton.Text = "Inspectors";
-			inspectorButton.Clicked += openInspectorsPage;
+			inspectorButton.Clicked += InspectorHelper.openInspectorsPage;
 			ToolbarItems.Add(inspectorButton);
+			Button ResetButton = new Button
+			{
+				Text = "Refresh Checklists",
+			};
+			ResetButton.Clicked += ResetButton_Clicked;
+			ResetCell = new ViewCell
+			{
+				View = ResetButton
+			};
 
 			ResetChecklists();
 			Title = "Select a checklist";
 		}
+
+		void ResetButton_Clicked(object sender, EventArgs e)
+		{
+			CheckForChecklists();
+		}
 		protected override void OnAppearing()
+		{
+			CheckForChecklists();
+			base.OnAppearing();
+		}
+		internal void CheckForChecklists()
 		{
 			IEnumerable<string> zipFileNames = DependencyService.Get<IFileManage>().GetAllValidFiles();
 			if (zipFileNames.Any())
@@ -48,7 +69,6 @@ namespace CCPApp.Views
 				App.database.SaveChecklists(newChecklists);
 				ResetChecklists();
 			}
-			base.OnAppearing();
 		}
 		internal void ResetChecklists()
 		{
@@ -86,18 +106,12 @@ namespace CCPApp.Views
 				cells.Add(cell);
 			}
 			tempChecklistSection.Add(cells);
+			tempChecklistSection.Add(ResetCell);
 			root.Add(tempChecklistSection);
 			checklistSection = tempChecklistSection;
 			checklistsView.Root = root;
 
 			Content = checklistsView;
-		}
-
-		public async void openInspectorsPage(object sender, EventArgs e)
-		{
-			ToolbarItem button = (ToolbarItem)sender;
-			InspectorsPage page = new InspectorsPage();
-			await App.Navigation.PushAsync(page);
 		}
 
 		public async void DeleteChecklist(object sender, EventArgs e)

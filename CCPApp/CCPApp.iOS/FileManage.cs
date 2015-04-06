@@ -65,6 +65,10 @@ namespace CCPApp.iOS
 		{
 			return Path.GetTempPath();
 		}
+		public string GetPublicFolder()
+		{
+			return Environment.GetFolderPath(Environment.SpecialFolder.Personal);
+		}
 		public void DeleteTempFile(string fileName)
 		{
 			string tempPath = GetTempFolder();

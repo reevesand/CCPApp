@@ -25,5 +25,9 @@ namespace CCPApp.iOS.Utilities
 			return "Are you sure you want to delete " + title + "?  All its data and inspections will be lost.  The only way to restore the checklist " +
 				"will be to add it through iTunes again.";
 		}
+		public string outbriefingInstructions()
+		{
+			return "Instructions for how to export and deal with the outbriefing";
+		}
 	}
 }

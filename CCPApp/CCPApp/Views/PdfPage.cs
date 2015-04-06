@@ -11,6 +11,7 @@ namespace CCPApp.Views
 	{
 		public string FileName { get; set; }
 		public int PageNumber { get; set; }
+		public bool useTemp = false;
 		public PdfPage(string fileName, int pageNumber)
 		{
 			FileName = fileName;

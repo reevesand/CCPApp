@@ -15,6 +15,7 @@ namespace CCPApp.Views
 		public ReportPage(string fileName)
 			:base(fileName,1)
 		{
+			useTemp = true;
 			ToolbarItem exportButton = new ToolbarItem();
 			exportButton.Clicked += OpenExportPage;
 			exportButton.Text = "Export";

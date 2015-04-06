@@ -42,5 +42,9 @@ namespace CCPApp
 			MainPage = new NavigationPage(frontPage);
 			Navigation = MainPage.Navigation;
 		}
+		public static Rectangle GetPageBounds()
+		{
+			return Navigation.NavigationStack.First().Bounds;
+		}
 	}
 }
