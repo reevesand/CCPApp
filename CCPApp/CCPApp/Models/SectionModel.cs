@@ -47,10 +47,16 @@ namespace CCPApp.Models
 		public List<Question> AllQuestions()
 		{
 			List<Question> questions = new List<Question>();
-			questions.AddRange(Questions);
-			foreach (SectionPart part in SectionParts)
+			if (SectionParts.Any())
 			{
-				questions.AddRange(part.Questions);
+				foreach (SectionPart part in SectionParts)
+				{
+					questions.AddRange(part.Questions);
+				}
+			}
+			else
+			{
+				questions.AddRange(Questions);
 			}
 			return questions;
 		}

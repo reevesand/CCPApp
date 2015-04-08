@@ -31,7 +31,7 @@ namespace CCPApp
 			});
 		}
 
-		internal static List<QuestionPage> GenerateQuestionPages(List<Question> questions, Inspection inspection)
+		internal static List<QuestionPage> GenerateQuestionPages(List<Question> questions, Inspection inspection, ISectionPage sectionPage)
 		{
 			List<QuestionPage> pages = new List<QuestionPage>();
 			string MasterQuestionText = string.Empty;
@@ -56,6 +56,7 @@ namespace CCPApp
 				}
 				if (page != null)
 				{
+					page.sectionPage = sectionPage;
 					pages.Add(page);
 				}
 			}

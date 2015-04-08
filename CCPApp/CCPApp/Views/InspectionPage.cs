@@ -50,13 +50,11 @@ namespace CCPApp.Views
 				if (section.SectionParts.Count > 0)
 				{
 					SectionWithPartsPage page = new SectionWithPartsPage(section, inspection);
-					page.Icon = "TabIconGreenNoBG.png";
 					Children.Add(page);
 				}
 				else
 				{
 					SectionNoPartsPage page = new SectionNoPartsPage(section, inspection);
-					page.Icon = "TabIconGreenNoBG.png";
 					Children.Add(page);
 				}
 			}
@@ -122,9 +120,13 @@ namespace CCPApp.Views
 				await App.Navigation.PushAsync(page);
 			});
 		}
+		private void ClickChecklistInfo()
+		{
+			DisplayAlert("Checklist Information", "You are viewing the checklist\n"+inspection.Checklist.Title, "OK");
+		}
 		private async void ClickActionsButton(object sender, EventArgs e)
 		{
-			string action = await DisplayActionSheet("Inspection Actions", "Cancel", null, "Generate Report", "Disputed Questions", "Unanswered Questions", "View Scores","Generate Outbriefing","Cancel");
+			string action = await DisplayActionSheet("Inspection Actions", "Cancel", null, "Generate Report", "Disputed Questions", "Unanswered Questions", "View Scores","Generate Outbriefing", "Checklist Information","Cancel");
 			switch (action)
 			{
 			case "Generate Report":
@@ -142,6 +144,9 @@ namespace CCPApp.Views
 			case "Generate Outbriefing":
 				ClickOutbriefingButton();
 				break;
+			case "Checklist Information":
+				ClickChecklistInfo();
+				break;
 			}
 		}
 
@@ -158,6 +163,11 @@ namespace CCPApp.Views
 		SectionModel GetCurrentSection();
 		Question GetCurrentQuestion();
 		void SetSelectedQuestion(Question question);
+		/// <summary>
+		/// Checks to see if the icon needs to be updated and, if so, updates it.
+		/// </summary>
+		/// <param name="answered">True if a question has just been answered, false if one has just been cleared</param>
+		void UpdateIcon(bool answered);
 	}
 	internal class SectionWithPartsPage : TabbedPage, ISectionPage
 	{
@@ -169,12 +179,14 @@ namespace CCPApp.Views
 			this.section = section;
 			this.inspection = inspection;
 			Title = section.ShortTitle;
-			Icon = "TabIconGreenNoBG.png";
-			/*foreach (SectionPart part in section.SectionParts)
+			if (section.AllScorableQuestions().Count == inspection.scores.Count(s => s.question.section == section))
 			{
-				PartPage page = new PartPage(part);
-				Children.Add(page);
-			}*/
+				Icon = "Checkmark2.png";
+			}
+			else
+			{
+				Icon = "TabIconGreenNoBG.png";
+			}
 		}
 		public void Initialize()
 		{
@@ -183,7 +195,7 @@ namespace CCPApp.Views
 				initialized = true;
 				foreach (SectionPart part in section.SectionParts)
 				{
-					PartPage page = new PartPage(part, inspection);
+					PartPage page = new PartPage(part, inspection,this);
 					Children.Add(page);
 				}
 			}
@@ -202,6 +214,19 @@ namespace CCPApp.Views
 		{
 			return section;
 		}
+		public void UpdateIcon(bool answered)
+		{
+			((PartPage)CurrentPage).UpdateIcon(answered);
+			if (!answered)
+			{
+				Icon = "TabIconGreenNoBG.png";
+				return;
+			}
+			if (section.AllScorableQuestions().Count == inspection.scores.Count(s => s.question.section == section))
+			{
+				Icon = "Checkmark2.png";
+			}
+		}
 		protected override void OnCurrentPageChanged()
 		{
 			inspection.SetLastViewedQuestion(GetCurrentQuestion());
@@ -218,7 +243,14 @@ namespace CCPApp.Views
 			this.section = section;
 			this.inspection = inspection;
 			Title = section.ShortTitle;
-			Icon = "TabIconGreenNoBG.png";
+			if (section.AllScorableQuestions().Count == inspection.scores.Count(s => s.question.section == section))
+			{
+				Icon = "Checkmark2.png";
+			}
+			else
+			{
+				Icon = "TabIconGreenNoBG.png";
+			}
 			/*foreach (Question question in section.Questions)
 			{
 				QuestionPage page = new QuestionPage(question);
@@ -231,7 +263,7 @@ namespace CCPApp.Views
 			{
 				initialized = true;
 				
-				List<QuestionPage> pages = InspectionHelper.GenerateQuestionPages(section.Questions, inspection);
+				List<QuestionPage> pages = InspectionHelper.GenerateQuestionPages(section.Questions, inspection,this);
 				foreach (ContentPage page in pages)
 				{
 					Children.Add(page);
@@ -250,6 +282,21 @@ namespace CCPApp.Views
 		{
 			return section;
 		}
+		public void UpdateIcon(bool answered)
+		{
+			if (!answered)
+			{
+				//They cleared one.  Clearly the checklist is still in progress.  Currently we only have two states.
+				//Set icon to in progress if it's not already.
+				Icon = "TabIconGreenNoBG.png";
+				return;
+			}
+			if (Children.Cast<QuestionPage>().All(p => p.HasScore))
+			{
+				Icon = "Checkmark2.png";
+			}
+			//set icon to done if it's not already.
+		}
 		protected override void OnCurrentPageChanged()
 		{
 			inspection.SetLastViewedQuestion(GetCurrentQuestion());
@@ -261,17 +308,18 @@ namespace CCPApp.Views
 	{
 		SectionPart part;
 		Inspection inspection;
-		public PartPage(SectionPart part, Inspection inspection)
+		public PartPage(SectionPart part, Inspection inspection, SectionWithPartsPage sectionPage)
 		{
 			this.part = part;
 			this.inspection = inspection;
 			Title = "Part " + part.Label;
-			this.Icon = "TabIconGreenNoBG.png";
-			List<QuestionPage> pages = InspectionHelper.GenerateQuestionPages(part.Questions, inspection);
+			Icon = "TabIconGreenNoBG.png";
+			List<QuestionPage> pages = InspectionHelper.GenerateQuestionPages(part.Questions, inspection, sectionPage);
 			foreach (ContentPage page in pages)
 			{
 				Children.Add(page);
 			}
+			UpdateIcon(true);
 			this.CurrentPageChanged += PartPage_CurrentPageChanged;
 		}
 		public SectionPart GetPart()
@@ -281,6 +329,17 @@ namespace CCPApp.Views
 		protected void PartPage_CurrentPageChanged(object sender, EventArgs e)
 		{
 			inspection.SetLastViewedQuestion(((QuestionPage)CurrentPage).question);
+		}
+		public void UpdateIcon(bool answered)
+		{
+			if (!answered)
+			{
+				Icon = "TabIconGreenNoBG.png";
+			}
+			if (Children.Cast<QuestionPage>().All(p => p.HasScore))
+			{
+				Icon = "Checkmark2.png";
+			}
 		}
 	}
 }

@@ -15,6 +15,9 @@ namespace CCPApp.Views
 		ScoredQuestion score;
 		Editor remarksBox;
 		Label existingAnswerLabel = new Label();
+		public ISectionPage sectionPage { get; set; }
+		public bool HasScore = false;
+
 		public QuestionPage(Question question, Inspection inspection, string textOverride = null, List<Reference> extraReferences = null)
 		{
 			this.question = question;
@@ -65,10 +68,12 @@ namespace CCPApp.Views
 			//Answer
 			score = inspection.GetScoreForQuestion(question);
 			if (score != null) {
+				HasScore = true;
 				existingAnswerLabel.Text = "Answer: " + score.answer.ToString();
 			}
 			else
 			{
+				HasScore = false;
 				existingAnswerLabel.Text = "";
 			}
 			layout.Children.Add(existingAnswerLabel);
@@ -159,6 +164,8 @@ namespace CCPApp.Views
 			score.answer = button.answer;
 			App.database.SaveScore(score);
 			existingAnswerLabel.Text = "Answer: " + score.answer.ToString();
+			HasScore = true;
+			sectionPage.UpdateIcon(true);
 		}
 		private void clearScores(object sender, EventArgs e)
 		{
@@ -167,7 +174,9 @@ namespace CCPApp.Views
 				inspection.scores.Remove(score);
 				App.database.DeleteScore(score);
 			}
+			HasScore = false;
 			existingAnswerLabel.Text = "";
+			sectionPage.UpdateIcon(false);
 		}
 		private void openCommentPage(object sender, EventArgs e)
 		{

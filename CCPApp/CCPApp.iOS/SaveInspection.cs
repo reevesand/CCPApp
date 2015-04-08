@@ -10,6 +10,7 @@ using System.Xml;
 using System.IO;
 using Xamarin.Forms;
 using CCPApp.iOS;
+using CCPApp.Utilities;
 
 [assembly: Dependency(typeof(SaveInspection))]
 namespace CCPApp.iOS
@@ -48,13 +49,25 @@ namespace CCPApp.iOS
 			writer.WriteAttributeString("ScoreThresholdSatisfactory", checklist.ScoreThresholdSatisfactory.ToString());
 			writer.WriteAttributeString("UserInvert", checklist.UserInvert.ToString());
 
+			writer.WriteAttributeString("InspectionTitle", inspection.Name);
+			writer.WriteAttributeString("Organization", inspection.Organization);
+			SaveInspectors(writer);
+
 			//SaveSystemicDefCategories(writer); I don't actually know what this is.
 			SaveSections(writer);
-			//TODO also save the comments, scores, inspectors, remarks
 
 			// end checklist
 			writer.WriteEndDocument();
 			writer.Close();
+		}
+		protected void SaveInspectors(XmlTextWriter writer)
+		{
+			foreach (Inspector inspector in inspection.inspectors)
+			{
+				writer.WriteStartElement("Inspector");
+				writer.WriteAttributeString("Name", inspector.Name);
+				writer.WriteEndElement();
+			}
 		}
 		protected void SaveSections(XmlTextWriter writer)
 		{
@@ -69,9 +82,14 @@ namespace CCPApp.iOS
 				writer.WriteAttributeString("ShortTitle", Sections[i].ShortTitle);
 				writer.WriteAttributeString("ScoringModel", Sections[i].ScoringModel);
 
-				SaveSectionParts(writer, Sections[i]);
-				//SaveSystemicDefs(writer, Sections[i]);
-				SaveQuestions(writer, Sections[i].Questions);
+				if (Sections[i].SectionParts.Any())
+				{
+					SaveSectionParts(writer, Sections[i]);
+				}
+				else
+				{
+					SaveQuestions(writer, Sections[i].Questions);
+				}
 
 				// end section element
 				writer.WriteEndElement();
@@ -110,11 +128,34 @@ namespace CCPApp.iOS
 				writer.WriteAttributeString("OldText", questions[i].OldText);
 				writer.WriteAttributeString("Updated", questions[i].Updated.ToString());
 				writer.WriteAttributeString("HasSubItems", questions[i].HasSubItems.ToString());
+				ScoredQuestion score = inspection.GetScoreForQuestion(questions[i]);
+				if (score != null)
+				{
+					writer.WriteAttributeString("Score", inspection.GetScoreForQuestion(questions[i]).answer.ToString());
+				}
+				else
+				{
+					writer.WriteAttributeString("Score", string.Empty);
+				}
 
+				SaveComments(writer, questions[i]);
 				SaveReferences(writer, questions[i]);
 				//SaveSystemicDefCategoryIndices(writer, questions[i]);
 
 				// end question element
+				writer.WriteEndElement();
+			}
+		}
+		protected void SaveComments(XmlTextWriter writer, Question question)
+		{
+			foreach (Comment comment in inspection.comments.Where(c => c.question == question))
+			{
+				writer.WriteStartElement("Comment");
+				writer.WriteAttributeString("Type", comment.type.ToString());
+				writer.WriteAttributeString("Subject", comment.Subject);
+				writer.WriteAttributeString("Text", comment.CommentText);
+				writer.WriteAttributeString("Discussion", comment.Discussion);
+				writer.WriteAttributeString("Recommendation", comment.Recommendation);
 				writer.WriteEndElement();
 			}
 		}
