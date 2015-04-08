@@ -82,7 +82,7 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="itextsharp">
-      <HintPath>..\..\..\..\..\Users\DAVIDJ\Downloads\iTextSharp-4.1.6-master\bin\Debug\itextsharp.dll</HintPath>
+      <HintPath>..\..\packages\itextsharp.dll</HintPath>
     </Reference>
     <Reference Include="monotouch">
       <HintPath>..\..\..\..\..\Program Files (x86)\Reference Assemblies\Microsoft\Framework\MonoTouch\v1.0\monotouch.dll</HintPath>
