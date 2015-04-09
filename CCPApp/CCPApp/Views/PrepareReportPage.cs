@@ -20,13 +20,12 @@ namespace CCPApp.Views
 			Title = "Report Options";
 			StackLayout layout = new StackLayout();
 			layout.VerticalOptions = LayoutOptions.Center;
-			layout.HorizontalOptions = LayoutOptions.End;
+			//layout.HorizontalOptions = LayoutOptions.End;
 
 			Label CommentLabel = new Label { Text = "Comments" };
 			Switch CommentSwitch = new Switch { IsToggled = true, BindingContext = model };
 			CommentSwitch.SetBinding(Switch.IsToggledProperty, "Comments");
 			StackLayout CommentLayout = new StackLayout { Children = { CommentLabel, CommentSwitch }, Orientation = StackOrientation.Horizontal, HorizontalOptions = LayoutOptions.End };
-			//BothSidesLayout CommentLayout = new BothSidesLayout(CommentLabel, CommentSwitch);
 
 			Label QuestionsLabel = new Label { Text = "Questions List" };
 			Switch QuestionsSwitch = new Switch { IsToggled = true, BindingContext = model };
@@ -54,97 +53,61 @@ namespace CCPApp.Views
 			StackLayout GraphLayout = new StackLayout { Children = { GraphLabel, GraphSwitch }, Orientation = StackOrientation.Horizontal, HorizontalOptions = LayoutOptions.End };
 
 			Button GenerateButton = new Button { Text = "Generate Report" };
-			GenerateButton.Clicked += GenerateButtonClicked;
+			GenerateButton.Clicked += GenerateButtonClicked;			
 
-			layout.Children.Add(CommentLayout);
+			Grid grid = new Grid
+			{
+				VerticalOptions = LayoutOptions.CenterAndExpand,
+				ColumnDefinitions =
+				{
+					new ColumnDefinition{Width = App.GetPageBounds().Width / 2},
+					new ColumnDefinition{Width = App.GetPageBounds().Width / 2}
+				}
+			};
+
+			grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+			CommentLabel.XAlign = TextAlignment.End;
+			grid.Children.Add(CommentLabel, 0, 0);
+			grid.Children.Add(CommentSwitch,1,0);
+
+			grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+			QuestionsLabel.XAlign = TextAlignment.End;
+			grid.Children.Add(QuestionsLabel, 0, 1);
+			grid.Children.Add(QuestionsSwitch, 1, 1);
+
+			grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+			StructureLabel.XAlign = TextAlignment.End;
+			grid.Children.Add(StructureLabel, 0, 2);
+			grid.Children.Add(StructureSwitch, 1, 2);
+
+			grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+			TotalsLabel.XAlign = TextAlignment.End;
+			grid.Children.Add(TotalsLabel, 0, 3);
+			grid.Children.Add(TotalsSwitch, 1, 3);
+
+			grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+			ScoreSheetLabel.XAlign = TextAlignment.End;
+			grid.Children.Add(ScoreSheetLabel, 0, 4);
+			grid.Children.Add(ScoreSheetSwitch, 1, 4);
+
+			grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+			GraphLabel.XAlign = TextAlignment.End;
+			grid.Children.Add(GraphLabel, 0, 5);
+			grid.Children.Add(GraphSwitch, 1, 5);
+
+			grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+			grid.Children.Add(GenerateButton, 0, 2, 6, 7);
+
+			/*layout.Children.Add(CommentLayout);
 			layout.Children.Add(QuestionsLayout);
 			layout.Children.Add(StructureLayout);
 			layout.Children.Add(TotalsLayout);
 			layout.Children.Add(ScoreSheetLayout);
 			layout.Children.Add(GraphLayout);
 			layout.Children.Add(GenerateButton);
+			Content = layout;*/
 
-			Content = layout;
-
-			/*TableView table = new TableView();
-			TableRoot root = new TableRoot();
-			TableSection section = new TableSection();
-
-			List<Cell> cells = new List<Cell>();
-
-			SwitchCell CommentsSwitch = new SwitchCell
-			{
-				Text = "Comments",
-				On = true,
-			};
-			cells.Add(CommentsSwitch);
-			SwitchCell QuestionsSwitch = new SwitchCell
-			{
-				Text = "Questions",
-				On = true,
-			};
-			cells.Add(QuestionsSwitch);
-			SwitchCell StructureSwitch = new SwitchCell
-			{
-				Text = "Checklist Structure",
-				On = true,
-			};
-			cells.Add(StructureSwitch);
-			SwitchCell TotalsSwitch = new SwitchCell
-			{
-				Text = "Section Totals",
-				On = true,
-			};
-			cells.Add(TotalsSwitch);
-			SwitchCell ScoreSheetSwitch = new SwitchCell
-			{
-				Text = "Score Sheet",
-				On = true,
-			};
-			cells.Add(ScoreSheetSwitch);
-			SwitchCell GraphSwitch = new SwitchCell
-			{
-				Text = "Graph Sheet",
-				On = true,
-			};
-			cells.Add(GraphSwitch);
-			ViewCell Generate = new ViewCell
-			{
-				View = new Button
-				{
-					Text = "Generate Report",
-				},
-			};
-			cells.Add(Generate);
-
-			section.Add(cells);
-			root.Add(section);
-			table.Root = root;
-			Content = table;*/
-
-			/*Grid grid = new Grid
-			{
-				VerticalOptions = LayoutOptions.FillAndExpand,
-				ColumnDefinitions =
-				{
-					new ColumnDefinition{Width = GridLength.Auto},
-					new ColumnDefinition{Width = GridLength.Auto}
-				}
-			};
-			Switch QuestionsSwitch = new Switch
-			{
-				IsToggled = true,				
-			};
-			Label QuestionsLabel = new Label
-			{
-				Text = "Questions"
-			};
-
-			grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-			grid.Children.Add(QuestionsLabel,0,0);
-			grid.Children.Add(QuestionsSwitch,1,0);
-
-			Content = grid;*/
+			Content = grid;
 		}
 
 		public void GenerateButtonClicked(object sender, EventArgs e)
