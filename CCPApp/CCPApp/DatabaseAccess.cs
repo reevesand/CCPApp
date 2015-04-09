@@ -69,7 +69,7 @@ namespace CCPApp
 				}
 			});
 		}
-		public async void SaveChecklists(List<ChecklistModel> checklists)
+		public async Task SaveChecklists(List<ChecklistModel> checklists)
 		{
 			//ExecutingAsyncTask = true;
 			Action action = new Action(() => {

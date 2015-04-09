@@ -53,6 +53,7 @@ namespace CCPApp.Views
 			if (zipFileNames.Any())
 			{
 				List<ChecklistModel> newChecklists = new List<ChecklistModel>();
+				List<string> zipNames = new List<string>();
 				foreach (string zipName in zipFileNames)
 				{
 					string unzippedDirectory = DependencyService.Get<IUnzipHelper>().Unzip(zipName);
@@ -62,11 +63,21 @@ namespace CCPApp.Views
 					//move the files to a new folder.
 					DependencyService.Get<IFileManage>().MoveDirectoryToPrivate(unzippedDirectory, checklistId);
 					//Delete the zip file once we're done with it.
-					DependencyService.Get<IFileManage>().DeleteFile(zipName);
+					zipNames.Add(zipName);
+					//DependencyService.Get<IFileManage>().DeleteFile(zipName);
 					newChecklists.Add(model);
 					checklists.Add(model);
 				}
-				App.database.SaveChecklists(newChecklists);
+				//Only delete the zip files if they get successfully saved to the db.
+				Task.Run(async() =>
+				{
+					await App.database.SaveChecklists(newChecklists);
+					foreach (string zipName in zipNames)
+					{
+						DependencyService.Get<IFileManage>().DeleteFile(zipName);
+					}
+				});
+				//App.database.SaveChecklists(newChecklists);
 				ResetChecklists();
 			}
 		}
