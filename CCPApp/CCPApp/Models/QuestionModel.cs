@@ -44,7 +44,7 @@ namespace CCPApp.Models
 			string prefix;
 			if (part != null)
 			{
-				prefix = part.Label;
+				prefix = section.Label + "-" + part.Label;
 			}
 			else
 			{
