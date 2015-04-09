@@ -73,7 +73,15 @@ namespace CCPApp.Models
 		{
 			get
 			{
-				return ToString() + " " + Text;
+				Question master = MasterQuestion;
+				if (master == null)
+				{
+					return ToString() + " " + Text;
+				}
+				else
+				{
+					return ToString() + " " + master.Text + " " + Text;
+				}
 			}
 		}
 		public Question SelfReference
@@ -81,6 +89,17 @@ namespace CCPApp.Models
 			get
 			{
 				return this;
+			}
+		}
+		public Question MasterQuestion
+		{
+			get
+			{
+				if (Subqualifier == null || Subqualifier == string.Empty)
+				{
+					return null;
+				}
+				return section.AllQuestions().Single(q => q.SectionId == SectionId && q.SectionPartId == SectionPartId && q.Number == Number && q.Subqualifier == string.Empty);
 			}
 		}
 	}
