@@ -8,8 +8,10 @@ using MonoTouch.UIKit;
 using Xamarin.Forms.Platform.iOS;
 using Xamarin.Forms;
 using CCPApp.iOS.Renderers;
+using MonoTouch.CoreGraphics;
+using MonoTouch.CoreAnimation;
 
-//[assembly: ExportRenderer(typeof(Editor), typeof(OutlineEditorRenderer))]
+[assembly: ExportRenderer(typeof(Editor), typeof(OutlineEditorRenderer))]
 namespace CCPApp.iOS.Renderers
 {
 	public class OutlineEditorRenderer : EditorRenderer
@@ -17,6 +19,13 @@ namespace CCPApp.iOS.Renderers
 		protected override void OnElementChanged(ElementChangedEventArgs<Editor> e)
 		{
 			base.OnElementChanged(e);
+			if (e.OldElement == null && Control != null)
+			{
+				CALayer layer = Control.Layer;
+				layer.BorderWidth = 1F;
+				layer.BorderColor = UIColor.LightGray.CGColor;
+				layer.CornerRadius = 8;
+			}
 		}
 	}
 }
