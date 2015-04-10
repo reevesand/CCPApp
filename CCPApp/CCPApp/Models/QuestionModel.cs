@@ -8,10 +8,10 @@ using System.Threading.Tasks;
 
 namespace CCPApp.Models
 {
-	public class Question
+	public class Question : IdModel
 	{
 		[PrimaryKey,AutoIncrement]
-		public int? Id { get; set; }
+		public override int? Id { get; set; }
 		[ForeignKey(typeof(SectionModel))]
 		public int? SectionId { get; set; }
 		[ManyToOne(CascadeOperations= CascadeOperation.All)]

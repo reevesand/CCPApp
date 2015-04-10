@@ -166,6 +166,7 @@ namespace CCPApp.Views
 			existingAnswerLabel.Text = "Answer: " + score.answer.ToString();
 			HasScore = true;
 			sectionPage.UpdateIcon(true);
+			sectionPage.AutoAdvance(question);
 		}
 		private void clearScores(object sender, EventArgs e)
 		{

@@ -155,7 +155,6 @@ namespace CCPApp.Views
 			this.CurrentPage = this.Children.Single(s => ((ISectionPage)s).GetCurrentSection().Id == section.Id);
 			return (ISectionPage)CurrentPage;
 		}
-
 	}
 	public interface ISectionPage
 	{
@@ -168,6 +167,7 @@ namespace CCPApp.Views
 		/// </summary>
 		/// <param name="answered">True if a question has just been answered, false if one has just been cleared</param>
 		void UpdateIcon(bool answered);
+		void AutoAdvance(Question question);
 	}
 	internal class SectionWithPartsPage : TabbedPage, ISectionPage
 	{
@@ -226,6 +226,10 @@ namespace CCPApp.Views
 			{
 				Icon = "Checkmark2.png";
 			}
+		}
+		public void AutoAdvance(Question question)
+		{
+			//TODO
 		}
 		protected override void OnCurrentPageChanged()
 		{
@@ -296,6 +300,20 @@ namespace CCPApp.Views
 				Icon = "Checkmark2.png";
 			}
 			//set icon to done if it's not already.
+		}
+		public void AutoAdvance(Question question)
+		{
+			List<Question> questions = section.AllScorableQuestions();
+			if (question.Id == questions.Last().Id)
+			{
+				//I could just do nothing, or I could go to the next section.  Or, like, go to the scores page.
+				return;
+			}
+			else
+			{
+				int index = questions.IndexOf(question);
+				this.CurrentPage = this.Children.ElementAt(index + 1);
+			}
 		}
 		protected override void OnCurrentPageChanged()
 		{
